@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.blue-shift-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x18E226B2",
+    "expected_name": "Blue Shift"
+  },
+  "identity": {
+    "item_hash": "0x377F5C17",
+    "collectible_hash": "0x85888A18",
+    "unlock_hash": "0x1CC7C446",
+    "pattern_global_id_hash": "0x981F0AEE",
+    "name_hash": "0xD03B243F",
+    "type_hash": "0xD31C57A2",
+    "flavor_hash": "0x5C177C2E",
+    "source_hash": "0xA18F0719",
+    "collection_name_hash": "0xE811DD18",
+    "collection_description_hash": "0xAB55D2CD",
+    "inventory_hint_hash": "0x9FA8AE3A",
+    "collection_requirement_hash": "0xC487CA62"
+  },
+  "name": "Blue Shift Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

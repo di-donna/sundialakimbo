@@ -12,14 +12,14 @@ autoexamples = false
 
 [features]
 default = []
-d2-model-importer = ["dep:parhelion-import"]
+d2-model-importer = []
 
 [lints]
 workspace = true
 
 [dependencies]
 anyhow = "1"
-parhelion-import = { path = "../parhelion-import", optional = true }
+parhelion-import = { path = "../parhelion-import" }
 fs2 = "0.4.3"
 hex = "0.4.3"
 base64 = "0.23.1"

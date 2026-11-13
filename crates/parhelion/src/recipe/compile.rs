@@ -327,6 +327,7 @@ impl WeaponRecipeOverrides {
             ));
         }
         Ok(WeaponCloneOverrides {
+            akimbo: self.akimbo.clone(),
             remove_lore: self.remove_lore,
             #[cfg(feature = "d2-model-importer")]
             imported_graph: self.imported_graph.clone(),

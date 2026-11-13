@@ -141,6 +141,7 @@ fn operand(words: &[u32], at: &mut usize, depth: usize) -> AuthoringResult<Opera
 pub(crate) struct Program {
     chunks: Vec<([u8; 4], Vec<u8>)>,
     code_chunk: usize,
+    version: u32,
     pub instructions: Vec<Instruction>,
 }
 
@@ -155,7 +156,33 @@ fn word(bytes: &[u8], at: usize) -> AuthoringResult<u32> {
 }
 
 impl Program {
+    #[cfg(test)]
+    pub(crate) fn synthetic_vertex(
+        instructions: Vec<Instruction>,
+        input_signature: Vec<u8>,
+        output_signature: Vec<u8>,
+    ) -> Self {
+        Self {
+            chunks: vec![
+                (*b"ISGN", input_signature),
+                (*b"OSGN", output_signature),
+                (*b"SHEX", vec![]),
+            ],
+            code_chunk: 2,
+            version: 0x1_0050,
+            instructions,
+        }
+    }
+
     pub fn read(bytes: &[u8]) -> AuthoringResult<Self> {
+        Self::read_stage(bytes, 0x50)
+    }
+
+    pub fn read_vertex(bytes: &[u8]) -> AuthoringResult<Self> {
+        Self::read_stage(bytes, 0x1_0050)
+    }
+
+    fn read_stage(bytes: &[u8], version: u32) -> AuthoringResult<Self> {
         if bytes.get(..4) != Some(b"DXBC")
             || word(bytes, 24)? as usize != bytes.len()
             || word(bytes, 20)? != 1
@@ -196,10 +223,14 @@ impl Program {
         let code_chunk = code_chunk.ok_or_else(|| invalid("Shader program is missing"))?;
         let data = &chunks[code_chunk].1;
         if data.len() % 4 != 0
-            || word(data, 0)? != 0x50
+            || word(data, 0)? != version
             || word(data, 4)? as usize != data.len() / 4
         {
-            return Err(invalid("The shader is not an SM5 pixel program"));
+            return Err(invalid(if version == 0x50 {
+                "The shader is not an SM5 pixel program"
+            } else {
+                "The shader is not an SM5 vertex program"
+            }));
         }
         let tokens = data
             .chunks_exact(4)
@@ -255,6 +286,7 @@ impl Program {
         Ok(Self {
             chunks,
             code_chunk,
+            version,
             instructions,
         })
     }
@@ -267,8 +299,15 @@ impl Program {
             .map(|(_, data)| data.as_slice())
     }
 
+    pub(crate) fn chunk_mut(&mut self, name: &[u8; 4]) -> Option<&mut [u8]> {
+        self.chunks
+            .iter_mut()
+            .find(|(each, _)| each == name)
+            .map(|(_, data)| data.as_mut_slice())
+    }
+
     pub fn emit(mut self) -> AuthoringResult<Vec<u8>> {
-        let mut tokens = vec![0x50, 0];
+        let mut tokens = vec![self.version, 0];
         tokens.extend(
             self.instructions
                 .iter()

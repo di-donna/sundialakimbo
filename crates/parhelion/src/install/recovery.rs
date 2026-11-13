@@ -246,6 +246,7 @@ pub(super) fn validate_install_transaction(
         .artifacts
         .iter()
         .map(|artifact| artifact.file_name.as_str())
+        .filter(|name| *name != crate::weapon::akimbo::deployment::FILE_NAME)
         .collect::<Vec<_>>();
     authored_packages_for_file_names(actual_names).map_err(|error| {
         InstallError::validation(format!(
@@ -254,14 +255,21 @@ pub(super) fn validate_install_transaction(
     })?;
 
     let mut temporary_names = BTreeSet::new();
+    let mut artifact_names = BTreeSet::new();
     let uninstall = transaction
         .artifacts
         .iter()
         .all(|artifact| artifact.remove_target);
     for artifact in &transaction.artifacts {
+        if !artifact_names.insert(artifact.file_name.to_ascii_lowercase()) {
+            return Err(InstallError::validation(
+                "Repeated package transaction artifact",
+            ));
+        }
         if artifact.remove_target
             && (artifact.original.as_ref() != Some(&artifact.authored)
                 || (!uninstall
+                    && artifact.file_name != crate::weapon::akimbo::deployment::FILE_NAME
                     && authored_package_for_file_name(&artifact.file_name)
                         .is_none_or(|profile| profile.required_output)))
         {

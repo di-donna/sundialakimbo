@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.mob-justice-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xEBB55C1D",
+    "expected_name": "Mob Justice"
+  },
+  "identity": {
+    "item_hash": "0x3E06BC1E",
+    "collectible_hash": "0x25C71FB7",
+    "unlock_hash": "0xC82E229B",
+    "pattern_global_id_hash": "0x5D8C08AB",
+    "name_hash": "0x60708DBE",
+    "type_hash": "0xD4EDD413",
+    "flavor_hash": "0x793563C7",
+    "source_hash": "0x86185434",
+    "collection_name_hash": "0x5521CCE7",
+    "collection_description_hash": "0xF8DC3620",
+    "inventory_hint_hash": "0xE4A7D71F",
+    "collection_requirement_hash": "0xB87576CB"
+  },
+  "name": "Mob Justice Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

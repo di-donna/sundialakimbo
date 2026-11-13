@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.new-city-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x8FEC1128",
+    "expected_name": "New City"
+  },
+  "identity": {
+    "item_hash": "0x181AD166",
+    "collectible_hash": "0xAAD067FF",
+    "unlock_hash": "0x6C4303E3",
+    "pattern_global_id_hash": "0x7E023043",
+    "name_hash": "0x7B04A076",
+    "type_hash": "0xE1AB78AB",
+    "flavor_hash": "0x96E3622F",
+    "source_hash": "0x9680E1AC",
+    "collection_name_hash": "0x64EE7F57",
+    "collection_description_hash": "0xC75059D8",
+    "inventory_hint_hash": "0x3F3E1B57",
+    "collection_requirement_hash": "0x817EAD53"
+  },
+  "name": "New City Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

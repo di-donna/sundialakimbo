@@ -84,6 +84,7 @@ pub(super) fn author(
     if sunrise_members.len() != badge_placements.len() {
         crate::badge::set_sunrise_members(&mut badge, &sunrise_members, &sources.stock_pools)?;
     }
+    crate::progression::validate_reclaim_pages(&badge.nodes, project_rows)?;
     let nodes = badge.nodes;
     let node_strings = badge.node_strings;
     let objective_strings = badge.objective_strings;

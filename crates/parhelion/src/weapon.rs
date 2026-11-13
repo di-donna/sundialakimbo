@@ -2,6 +2,7 @@
 //! first-person animations borrowed from other weapons, reload-hold element switching,
 //! cross-family rigs, and the projection into Sunrise's replicated weapon perk bank. The build
 //! itself, which every item kind goes through, is `crate::item`.
+pub mod akimbo;
 pub(crate) mod ammo;
 pub(crate) mod animations;
 pub mod barrel;

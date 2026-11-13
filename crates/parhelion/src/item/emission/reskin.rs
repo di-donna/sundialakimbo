@@ -14,6 +14,13 @@
 use super::*;
 use crate::tag_payload::relative_target;
 use linking::{Companion, Companions, Node};
+mod akimbo;
+mod akimbo_carrier;
+mod akimbo_core;
+mod akimbo_fx;
+mod akimbo_layout;
+mod akimbo_pose;
+mod akimbo_profile;
 
 const ENTITY_CLASS: u32 = 0x8080_9C0F;
 const RESOURCE_CLASS: u32 = 0x8080_9C36;
@@ -35,10 +42,16 @@ pub(super) fn apply(
     replacements: &mut Vec<ReplacementSpec>,
 ) -> AuthoringResult<()> {
     let mut companions = Companions::new();
+    let mut effect_bindings = Vec::new();
     for spec in weapons {
         // An imported model's parts are private already, and its own pass moves their markers.
         #[cfg(feature = "d2-model-importer")]
         if spec.overrides.imported_graph.is_some() {
+            if spec.overrides.akimbo.is_some() {
+                return Err(invalid(
+                    "Akimbo currently requires a native weapon appearance",
+                ));
+            }
             if spec.overrides.shader_glow {
                 return Err(invalid(
                     "Shader Glow currently requires a native weapon appearance",
@@ -55,7 +68,33 @@ pub(super) fn apply(
         let offsets = spec.overrides.marker_offsets.as_slice();
         let shift = spec.overrides.held_offset;
         let glow = spec.overrides.shader_glow;
-        if spec.presentation_donor.is_none() && offsets.is_empty() && shift.is_none() && !glow {
+        let paired = spec.overrides.akimbo.is_some();
+        let mut profile = paired
+            .then(|| akimbo_profile::assess(manager, emission, spec))
+            .transpose()?;
+        let pose = if let Some((profile, _)) = &mut profile {
+            if matches!(profile.adapter, 10 | 11) {
+                Some(akimbo_pose::apply(
+                    directory,
+                    manager,
+                    emission,
+                    spec,
+                    profile,
+                    &mut companions,
+                    replacements,
+                )?)
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+        if spec.presentation_donor.is_none()
+            && offsets.is_empty()
+            && shift.is_none()
+            && !glow
+            && !paired
+        {
             continue;
         }
         let item = spec.identity.item_hash;
@@ -75,10 +114,10 @@ pub(super) fn apply(
             }
             None => false,
         };
-        if !pin && offsets.is_empty() && shift.is_none() && !glow {
+        if !pin && offsets.is_empty() && shift.is_none() && !glow && !paired {
             continue;
         }
-        private_parts(
+        let (private_model, gear_entities) = private_parts(
             directory,
             emission,
             manager,
@@ -91,7 +130,10 @@ pub(super) fn apply(
                 offsets,
                 shift,
                 glow,
+                akimbo: spec.overrides.akimbo.as_ref(),
+                pose: pose.as_ref(),
             },
+            &mut effect_bindings,
         )
         .map_err(|error| {
             error.context(match &spec.presentation_donor {
@@ -105,7 +147,42 @@ pub(super) fn apply(
                 ),
             })
         })?;
+        if let Some((mut profile, source_tags)) = profile {
+            emission.akimbo_source_tags.extend(source_tags);
+            profile.model_tag = private_model
+                .ok_or_else(|| invalid("Akimbo produced no private model owner"))?
+                .0;
+            if profile.adapter == 11 {
+                akimbo_core::apply(manager, emission, spec, &mut profile)?;
+            }
+            akimbo_profile::finish_visual(manager, emission, spec, &gear_entities, &mut profile)?;
+            if akimbo_fx::reserved(&profile) {
+                akimbo_fx::apply(
+                    directory,
+                    manager,
+                    emission,
+                    spec,
+                    &mut profile,
+                    &mut companions,
+                )?;
+                akimbo_profile::finish_visual(
+                    manager,
+                    emission,
+                    spec,
+                    &gear_entities,
+                    &mut profile,
+                )?;
+            }
+            profile.validate().map_err(invalid)?;
+            emission.akimbo_profiles.push(profile);
+        }
     }
+    if !effect_bindings.is_empty() {
+        emission
+            .akimbo_source_tags
+            .extend(akimbo_layout::sources(manager)?);
+    }
+    akimbo::effects(manager, emission, &effect_bindings, replacements)?;
     Ok(())
 }
 
@@ -113,6 +190,8 @@ pub(super) fn apply(
 /// the whole part moved in the hand, or any of them together.
 #[derive(Clone, Copy)]
 struct Copies<'a> {
+    akimbo: Option<&'a crate::weapon::akimbo::Intent>,
+    pose: Option<&'a crate::weapon::akimbo::visual::pose::Prepared>,
     pin: bool,
     offsets: &'a [(u32, [f32; 3])],
     /// How far the model and every marker move, in metres along the model's own axes.
@@ -170,7 +249,8 @@ fn private_parts(
     item: u32,
     ordinal: usize,
     copies: Copies<'_>,
-) -> AuthoringResult<()> {
+    effect_bindings: &mut Vec<(TagHash, crate::weapon::akimbo::shader::EffectBinding)>,
+) -> AuthoringResult<(Option<TagHash>, Vec<u32>)> {
     let art_rows = weapon_art_arrangements(&emission.host_new_tags[ordinal].payload)?;
     let indices = art_rows
         .iter()
@@ -214,6 +294,7 @@ fn private_parts(
         .collect::<AuthoringResult<BTreeMap<u32, u32>>>()?;
     let mut nodes = Vec::new();
     let mut entries = Vec::new();
+    let mut paired_owners = BTreeMap::new();
     let mut substitutions = BTreeMap::new();
     for key in &keys {
         let relation_tag = *map
@@ -227,12 +308,65 @@ fn private_parts(
         if !part_nodes(manager, &prefix, relation_tag, &mut nodes, copies)? {
             continue;
         }
+        if copies.akimbo.is_some()
+            && nodes
+                .iter()
+                .any(|node| node.symbol == format!("{prefix}-model-paired"))
+        {
+            paired_owners.insert(*key, format!("{prefix}-owner"));
+        }
         let private = private_key(item, *key);
         entries.push((private, format!("{prefix}-parent")));
         substitutions.insert(*key, private);
     }
     if entries.is_empty() {
-        return Ok(());
+        return Ok((None, Vec::new()));
+    }
+    let model_symbol = if copies.akimbo.is_some() {
+        Some(akimbo_carrier::select(
+            &emission.item_metadata,
+            rows + donor_row * 32,
+            &paired_owners,
+        )?)
+    } else {
+        nodes
+            .iter()
+            .find(|node| node.symbol.ends_with("-owner"))
+            .map(|node| node.symbol.clone())
+    };
+    let generated = if let Some(intent) = copies.akimbo {
+        emission.akimbo_source_tags.extend(
+            nodes
+                .iter()
+                .map(|node| node.template.0)
+                .filter(|tag| !matches!(*tag, 0 | u32::MAX)),
+        );
+        nodes
+            .iter()
+            .filter(|node| {
+                node.symbol.ends_with("-paired")
+                    && manager
+                        .get_entry(node.template)
+                        .is_some_and(|entry| entry.reference == MODEL_CLASS)
+            })
+            .map(|node| {
+                Ok((
+                    node.symbol.clone(),
+                    akimbo::effect_binding(
+                        &node.payload,
+                        intent.gap_meters(),
+                        copies.pose.map_or(3, |pose| pose.pose.marker_bone as u16),
+                    )?,
+                ))
+            })
+            .collect::<AuthoringResult<Vec<_>>>()?
+    } else {
+        Vec::new()
+    };
+    if copies.akimbo.is_some() && generated.is_empty() {
+        return Err(invalid(
+            "Akimbo appearance contains no pairable weapon geometry",
+        ));
     }
     let linked = linking::link(
         directory,
@@ -245,6 +379,15 @@ fn private_parts(
         |_, _| Ok(()),
         None,
     )?;
+    for (symbol, binding) in generated {
+        effect_bindings.push((
+            *linked
+                .symbols
+                .get(&symbol)
+                .ok_or_else(|| invalid("Akimbo model symbol was not allocated"))?,
+            binding,
+        ));
+    }
     let row_index = art::prepare_row_at(emission, item, donor_row)?;
     let (_, _, rows, _) = array(&emission.item_metadata, 8)?;
     art::rewrite(
@@ -288,7 +431,16 @@ fn private_parts(
     let replacement = art::insert_assignments(&table, &entries)?;
     replacements.retain(|existing| existing.tag != art::ASSIGNMENT_TABLE);
     replacements.push(replacement);
-    Ok(())
+    let entities = linked
+        .symbols
+        .iter()
+        .filter(|(name, _)| name.ends_with("-entity"))
+        .map(|(_, tag)| tag.0)
+        .collect();
+    Ok((
+        model_symbol.and_then(|symbol| linked.symbols.get(&symbol).copied()),
+        entities,
+    ))
 }
 
 /// Private copies of one gear part: the entity and the relation that the assignment map names,
@@ -326,18 +478,23 @@ fn part_nodes(
             continue;
         }
         let bytes = read(manager, tag)?;
-        if (!copies.offsets.is_empty() || copies.shift.is_some())
+        if (!copies.offsets.is_empty() || copies.shift.is_some() || copies.pose.is_some())
             && sundial::package_authoring::gear_markers::is_marker_set(&bytes)
         {
             use sundial::package_authoring::gear_markers::{offset_markers, shift_markers};
             let mut moved = bytes.clone();
+            if let Some(pose) = copies.pose {
+                akimbo_pose::markers(&mut moved, &pose.renumbering)?;
+            }
             let mut rows = offset_markers(&mut moved, copies.offsets)
                 .map_err(|error| invalid(format!("Marker set 0x{tag:08X}: {error}")))?;
             if let Some(shift) = copies.shift {
                 rows += shift_markers(&mut moved, shift)
                     .map_err(|error| invalid(format!("Marker set 0x{tag:08X}: {error}")))?;
             }
-            if rows > 0 && !markers.iter().any(|(seen, _, _)| *seen == tag) {
+            if (rows > 0 || copies.pose.is_some())
+                && !markers.iter().any(|(seen, _, _)| *seen == tag)
+            {
                 markers.push((tag, bytes, moved));
             }
             continue;
@@ -350,7 +507,12 @@ fn part_nodes(
             return Err(invalid("A gear part owns several models"));
         }
     }
-    if !copies.pin && copies.shift.is_none() && markers.is_empty() && !copies.glow {
+    if !copies.pin
+        && copies.shift.is_none()
+        && markers.is_empty()
+        && !copies.glow
+        && copies.akimbo.is_none()
+    {
         return Ok(false);
     }
     let entity_symbol = format!("{prefix}-entity");
@@ -359,10 +521,8 @@ fn part_nodes(
     for (index, (tag, stock, moved)) in markers.into_iter().enumerate() {
         let symbol = format!("{prefix}-markers{index}");
         let mut node = Node::new(symbol.clone(), tag, moved);
-        for offset in (0..stock.len().saturating_sub(3)).step_by(4) {
-            if read_u32(&stock, offset)? == tag {
-                node.patch(offset, symbol.clone())?;
-            }
+        for offset in akimbo_pose::self_references(&stock, tag)? {
+            node.patch(offset, symbol.clone())?;
         }
         for slot in owner_slots(&entity, &stock, tag)? {
             entity_node.patch(slot, symbol.clone())?;
@@ -373,7 +533,9 @@ fn part_nodes(
     // markers has nothing more to move.
     let owner = match owner {
         None if copies.pin => return Err(invalid("A gear part owns no model")),
-        owner if copies.pin || copies.shift.is_some() || copies.glow => owner,
+        owner if copies.pin || copies.shift.is_some() || copies.glow || copies.akimbo.is_some() => {
+            owner
+        }
         _ => None,
     };
     if let Some((owner_tag, owner_bytes)) = owner {
@@ -460,9 +622,23 @@ fn model_nodes(
     if copies.pin {
         write_u32(&mut model.payload, BONE_PALETTE, 1)?;
     }
-    if copies.glow {
+    if copies.glow && copies.akimbo.is_none() {
         super::glow::model(manager, prefix, &mut model, nodes)?;
     }
+    if let Some(intent) = copies.akimbo
+        && akimbo::model(
+            manager,
+            prefix,
+            &mut model,
+            nodes,
+            copies.glow,
+            intent.gap_meters(),
+            copies.pose,
+        )?
+    {
+        model.symbol.push_str("-paired");
+    }
+    let model_symbol = model.symbol.clone();
     nodes.push(model);
     let mut owner_node = Node::new(owner_symbol.clone(), owner_tag, owner_bytes.to_vec());
     owner_node.patch(data + MODEL_SLOT, model_symbol)?;

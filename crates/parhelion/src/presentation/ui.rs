@@ -126,7 +126,7 @@ impl Editor {
     ) {
         ui.horizontal(|ui| {
             ui.strong("Collections Badge");
-            sundial::investment::draw_authoring_info_icon(ui, "Group items in a custom badge. Use the same badge settings for each member. Normal Collections placement is unchanged.");
+            sundial::investment::draw_authoring_info_icon(ui, "Group items in a custom badge. Use the same badge settings for each member. Badges show collection progress and allow inspection only; reclaim items from their category pages in Collections.");
         });
         let mut enabled = draft.badge.is_some();
         if ui.checkbox(&mut enabled, "Custom Badge").changed() {

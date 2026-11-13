@@ -367,7 +367,17 @@ pub(crate) const PARHELION_ASSET_PACKAGE: AuthoredPackage = AuthoredPackage {
     required_output: true,
 };
 
-pub(crate) const CANONICAL_PACKAGES: [CanonicalPackage; 28] = [
+pub(crate) const CANONICAL_PACKAGES: [CanonicalPackage; 29] = [
+    // Shared cloak/outline vertex programs. Akimbo overlays retain every unmatched draw.
+    CanonicalPackage {
+        package_id: 0x03F5,
+        stock_file_stem: "w64_globals_03f5",
+        stock_patch_id: 5,
+        authored_patch_id: 6,
+        authored_file_name: "w64_globals_03f5_6.pkg",
+        stock_generation: EARLIER_GENERATION,
+        required_output: false,
+    },
     // The private perk runtime package.
     CanonicalPackage {
         package_id: PRIVATE_PERK_RUNTIME_PACKAGE_ID,

@@ -32,6 +32,7 @@ mod progress;
 use progress::Observer;
 pub use progress::{InstallPhase, InstallProgress};
 mod account;
+mod akimbo;
 mod identities;
 pub(crate) use identities::SHADER_STACK;
 mod kept;
@@ -325,6 +326,7 @@ impl std::error::Error for InstallError {}
 
 #[derive(Debug)]
 struct ValidatedRun {
+    akimbo: Option<akimbo::Bindings>,
     replacement_guard: Option<ReplacementReview>,
     staged_run_directory: PathBuf,
     target_packages_directory: PathBuf,
@@ -858,6 +860,7 @@ fn install_with_progress(
         verify_sunrise_cache_unchanged(&original_sunrise_cache).map_err(|error| {
             format!("Runtime or cache check failed before installation: {error}")
         })?;
+        akimbo::verify_runtime(&validated)?;
         replacement::verify_account(
             &validated.target_packages_directory,
             validated.replacement_guard.as_ref(),
@@ -935,6 +938,7 @@ fn check_game_immediately_before_commit(request: &InstallRequest) -> Result<(), 
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct ValidatedManifest {
+    akimbo: Option<akimbo::Bindings>,
     inputs: validation::staged::Inputs,
     packages: Vec<validation::package::Checked>,
     source_artifacts: Vec<ArtifactMetadata>,
@@ -1049,6 +1053,7 @@ fn commit_and_verify(
             progress,
         )?;
         verify_installed_files(&prepared, progress)?;
+        akimbo::verify_installed(context.validated)?;
         progress(InstallProgress::stage(InstallPhase::RefreshingCaches));
         let sunrise_cache =
             invalidate_sunrise_cache(context.original_sunrise_cache, context.cache_ops)?;

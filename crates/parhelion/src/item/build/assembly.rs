@@ -160,6 +160,8 @@ pub(super) fn prepare(
     }
     host_new_tags.extend(runtime.weapon_tags);
     let emission = emission::PackageEmission {
+        akimbo_profiles: Vec::new(),
+        akimbo_source_tags: Vec::new(),
         lore,
         hud_table: assets.hud_table,
         ability_banks,

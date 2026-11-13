@@ -91,6 +91,11 @@ pub(super) fn verify(
     target: &Path,
 ) -> Result<(), InstallError> {
     validated.inputs.verify(stage, target)?;
+    if let Some(binding) = &validated.akimbo {
+        binding
+            .verify(stage, target)
+            .map_err(InstallError::validation)?;
+    }
     check_layout(target, &validated.artifacts)?;
     if !validated.mods.is_empty() && !uses_mod_loader(target) {
         return Err(InstallError::validation(

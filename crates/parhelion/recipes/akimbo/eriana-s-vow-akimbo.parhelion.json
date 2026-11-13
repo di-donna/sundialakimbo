@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.eriana-s-vow-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xD210C009",
+    "expected_name": "Eriana's Vow"
+  },
+  "identity": {
+    "item_hash": "0xB8E2B7DF",
+    "collectible_hash": "0x3EAE4620",
+    "unlock_hash": "0x373EF10E",
+    "pattern_global_id_hash": "0x4E8BDD26",
+    "name_hash": "0xE677D15F",
+    "type_hash": "0xDF9849BA",
+    "flavor_hash": "0xA4DA1F46",
+    "source_hash": "0xCC2591F1",
+    "collection_name_hash": "0x7E87BD94",
+    "collection_description_hash": "0x93F2D685",
+    "inventory_hint_hash": "0xB398C47A",
+    "collection_requirement_hash": "0xEBC61C82"
+  },
+  "name": "Eriana's Vow Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

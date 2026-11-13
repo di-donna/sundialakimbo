@@ -29,12 +29,14 @@ pub(super) fn prepare_temporary_files_with_progress(
             index,
             validated.artifacts.len(),
         ));
-        let profile = authored_package_for_file_name(&artifact.file_name).ok_or_else(|| {
-            format!(
-                "Internal error: no authored package profile for {}",
+        let binding = artifact.file_name == crate::weapon::akimbo::deployment::FILE_NAME;
+        let profile = authored_package_for_file_name(&artifact.file_name);
+        if profile.is_none() && !binding {
+            return Err(format!(
+                "Internal error: no authored artifact profile for {}",
                 artifact.file_name
-            )
-        })?;
+            ));
+        }
         let allocated = if fail_before_allocation == Some(index) {
             Err(format!(
                 "Injected target temporary-file allocation failure at artifact {index}"
@@ -71,16 +73,22 @@ pub(super) fn prepare_temporary_files_with_progress(
                 artifact.file_name
             ));
         }
-        if let Err(error) = validate_authored_package_file(
-            &temporary_path,
-            profile,
-            &validated.target_packages_directory,
-        ) {
+        let verification = if let Some(profile) = profile {
+            validate_authored_package_file(
+                &temporary_path,
+                profile,
+                &validated.target_packages_directory,
+            )
+            .map_err(|error| error.message)
+        } else {
+            crate::weapon::akimbo::deployment::Descriptor::read(&temporary_path).map(|_| ())
+        };
+        if let Err(error) = verification {
             remove_file_if_present(&temporary_path);
             cleanup_prepared_files(&prepared);
             return Err(format!(
                 "Prepared artifact {} failed package validation before commit: {}",
-                artifact.file_name, error.message
+                artifact.file_name, error
             ));
         }
         prepared.push(PreparedArtifact {

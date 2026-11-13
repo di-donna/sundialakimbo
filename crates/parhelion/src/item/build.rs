@@ -188,6 +188,13 @@ fn compile_canonical(
     progress: &mut Progress<'_>,
 ) -> AuthoringResult<NewWeaponProjectBundle> {
     // A staged build already holds the layout it chose. A direct compile builds the stock one.
+    for weapon in weapons {
+        if let Some(akimbo) = &weapon.overrides.akimbo {
+            akimbo
+                .validate()
+                .map_err(|error| weapon.in_recipe(invalid(error)))?;
+        }
+    }
     let _profile = crate::package_profile::join();
     let mut sources = progress.step("Loading Source Tables", || {
         sources::load_project_sources(package_directory)

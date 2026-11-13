@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.the-prospector-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xD38BCABB",
+    "expected_name": "The Prospector"
+  },
+  "identity": {
+    "item_hash": "0x47219CC9",
+    "collectible_hash": "0x7A99DAA6",
+    "unlock_hash": "0x45CBA030",
+    "pattern_global_id_hash": "0x10E4BD40",
+    "name_hash": "0xFF1B3E26",
+    "type_hash": "0x895290B8",
+    "flavor_hash": "0xF580BB68",
+    "source_hash": "0xB5DD118B",
+    "collection_name_hash": "0xAB192BE2",
+    "collection_description_hash": "0x42E043B3",
+    "inventory_hint_hash": "0xB4A2987C",
+    "collection_requirement_hash": "0xA40F2558"
+  },
+  "name": "The Prospector Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

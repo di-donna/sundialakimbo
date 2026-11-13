@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.thorn-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xECD240D4",
+    "expected_name": "Thorn"
+  },
+  "identity": {
+    "item_hash": "0xCADD2E33",
+    "collectible_hash": "0x6500DBAC",
+    "unlock_hash": "0x49F89DAA",
+    "pattern_global_id_hash": "0xB2B52B3A",
+    "name_hash": "0x345F4133",
+    "type_hash": "0xD54BB436",
+    "flavor_hash": "0x3A2923D2",
+    "source_hash": "0xCF2D7DF5",
+    "collection_name_hash": "0xFF2E184C",
+    "collection_description_hash": "0x53756757",
+    "inventory_hint_hash": "0x7A78561E",
+    "collection_requirement_hash": "0x9BB7FF36"
+  },
+  "name": "Thorn Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

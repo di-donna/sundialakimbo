@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.antiope-d-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x21CB608D",
+    "expected_name": "Antiope-D"
+  },
+  "identity": {
+    "item_hash": "0xA8D66C31",
+    "collectible_hash": "0xA9DDC3EE",
+    "unlock_hash": "0xC84A5558",
+    "pattern_global_id_hash": "0x4C63EED8",
+    "name_hash": "0x4AF492FD",
+    "type_hash": "0xAF3DAD2C",
+    "flavor_hash": "0x49C98410",
+    "source_hash": "0x6B0556E3",
+    "collection_name_hash": "0xD42DA58A",
+    "collection_description_hash": "0x8F11D90B",
+    "inventory_hint_hash": "0xAF56CBE8",
+    "collection_requirement_hash": "0x7604D420"
+  },
+  "name": "Antiope-D Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

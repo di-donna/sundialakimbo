@@ -1,4 +1,6 @@
 use super::*;
+mod akimbo;
+mod akimbo_survey;
 mod combinations;
 mod independent_damage;
 mod staged_generation;

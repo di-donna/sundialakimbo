@@ -4,6 +4,7 @@ mod art;
 mod glow;
 #[cfg(feature = "d2-model-importer")]
 mod imported;
+mod inspect_scene;
 mod linking;
 mod ornament;
 mod packages;
@@ -37,7 +38,6 @@ fn definition_ordinal(emission: &PackageEmission, item: u32) -> AuthoringResult<
 }
 
 /// The private host tag holding an authored item's strings record.
-#[cfg(feature = "d2-model-importer")]
 fn strings_ordinal(emission: &PackageEmission, item: u32) -> AuthoringResult<usize> {
     let (count, _, rows, _) =
         sundial::package_authoring::native_payload::native_array_at(&emission.item_strings, 8)
@@ -60,6 +60,8 @@ fn strings_ordinal(emission: &PackageEmission, item: u32) -> AuthoringResult<usi
 }
 
 pub(super) struct PackageEmission {
+    pub(super) akimbo_profiles: Vec<crate::weapon::akimbo::deployment::Profile>,
+    pub(super) akimbo_source_tags: Vec<u32>,
     pub(super) lore: Option<lore::Plan>,
     pub(super) hud_table: Option<ReplacementSpec>,
     pub(super) ability_banks: BTreeMap<u16, Vec<ReplacementSpec>>,
@@ -213,6 +215,8 @@ pub(super) fn emit_packages(
         .into_iter()
         .partition(|r| r.tag.pkg_id() == emission.table_tags.item_string_table_tag.pkg_id());
     let PackageEmission {
+        akimbo_profiles,
+        akimbo_source_tags,
         lore,
         hud_table,
         ability_banks: mut shared_packages,
@@ -700,6 +704,8 @@ pub(super) fn emit_packages(
     Ok(NewWeaponProjectBundle {
         plan: NewWeaponProjectPlan {
             weapons: plans,
+            akimbo_profiles,
+            akimbo_source_tags,
             sunrise: SunriseProjectMetadata {
                 badge_node_hashes: SUNRISE_BADGE_NODE_HASHES,
                 badge_name_hash: SUNRISE_BADGE_NAME_HASH,

@@ -141,14 +141,12 @@ pub(in crate::item) fn set_item_string_inventory_slot(
 /// The bucket and both type keys of the client tuple. The bucket and first key choose the
 /// crosshair-table row whose scene the inspect screen shows. The hip-fire crosshair follows the
 /// runtime content's type key instead.
-#[cfg(feature = "d2-model-importer")]
 pub(in crate::item) fn item_string_type_keys(data: &[u8]) -> AuthoringResult<(u32, u32, u32)> {
     let (tuple, _) = item_string_client_tuple(data)?;
     let word = |at: usize| u32::from_le_bytes(tuple[at..at + 4].try_into().unwrap());
     Ok((word(0), word(4), word(8)))
 }
 
-#[cfg(feature = "d2-model-importer")]
 pub(in crate::item) fn set_item_string_type_keys(
     data: &mut [u8],
     first: u32,

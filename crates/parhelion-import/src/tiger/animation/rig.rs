@@ -479,6 +479,36 @@ pub(super) fn renumber_control(row: &mut [u8], renumbering: &Renumbering) -> Res
     Ok(())
 }
 
+/// Constraint lists and named controls also address bones, independently of clip slots.
+fn renumber_bindings(
+    procedural: &mut [u8],
+    named: &mut [u8],
+    map: &Renumbering,
+    native_bones: usize,
+) -> Result<()> {
+    ensure!(
+        procedural.len().is_multiple_of(2) && named.len().is_multiple_of(8),
+        "Control binding rows are truncated"
+    );
+    for row in procedural.chunks_exact_mut(2) {
+        let old = i16::from_le_bytes(row.try_into()?);
+        ensure!(
+            old < 0 || (old as usize) < native_bones,
+            "Procedural control exceeds native bones"
+        );
+        row.copy_from_slice(&i16::try_from(map.index(i32::from(old))?)?.to_le_bytes());
+    }
+    for row in named.chunks_exact_mut(8) {
+        let old = u32::from_le_bytes(row[4..8].try_into()?);
+        ensure!(
+            (old as usize) < native_bones,
+            "Named control exceeds native bones"
+        );
+        row[4..8].copy_from_slice(&u32::try_from(map.map[old as usize])?.to_le_bytes());
+    }
+    Ok(())
+}
+
 fn controls(
     original: &Payload,
     count: usize,
@@ -499,6 +529,8 @@ fn controls(
     let mut defaults = rows(original, base + 0xB0, 32, 0x80809F75)?;
     let mut forward = rows(original, base + 0xD8, 2, 0x80800006)?;
     let mut reverse = rows(original, base + 0xE8, 2, 0x80800006)?;
+    let mut procedural = rows(original, base + 0xC0, 2, 0x80800006)?;
+    let mut named = rows(original, base + 0x110, 8, 0x80808FFE)?;
     let slots = controls.len() / 52;
     ensure!(
         slots > 0
@@ -572,13 +604,16 @@ fn controls(
         reverse.extend(bone_index.to_le_bytes());
     }
     let forward = renumbering.permute(&forward, 2)?;
+    renumber_bindings(&mut procedural, &mut named, renumbering, count)?;
     let mut out = original.0.clone();
     for (field, class, stride, data) in [
         (0x90, 0x8080907F, 8, groups),
         (0xA0, 0x80809076, 52, controls),
         (0xB0, 0x80809F75, 32, defaults),
+        (0xC0, 0x80800006, 2, procedural),
         (0xD8, 0x80800006, 2, forward),
         (0xE8, 0x80800006, 2, reverse),
+        (0x110, 0x80808FFE, 8, named),
     ] {
         append(&mut out, base + field, class, &data, stride)?;
     }
@@ -695,13 +730,18 @@ pub fn extend_controls_like(
     controls.extend(extended[1][slots..].concat());
     let mut defaults = rows[2].concat();
     defaults.extend(extended[2][slots..].concat());
+    let mut procedural = rows[3].concat();
+    let mut named = rows[6].concat();
+    renumber_bindings(&mut procedural, &mut named, renumbering, bones)?;
     let mut out = other.0.clone();
     for (field, class, stride, data) in [
         (0x90, 0x8080907F, 8, groups),
         (0xA0, 0x80809076, 52, controls),
         (0xB0, 0x80809F75, 32, defaults),
+        (0xC0, 0x80800006, 2, procedural),
         (0xD8, 0x80800006, 2, extended[4].concat()),
         (0xE8, 0x80800006, 2, extended[5].concat()),
+        (0x110, 0x80808FFE, 8, named),
     ] {
         append(&mut out, base + field, class, &data, stride)?;
     }
@@ -726,4 +766,47 @@ pub fn extend(
         layout,
         renumbering,
     })
+}
+
+#[cfg(test)]
+mod binding_tests {
+    use super::*;
+
+    #[test]
+    fn inserted_marker_keeps_named_and_procedural_targets_on_the_original_bones() {
+        let map = Renumbering::inserted(5, 1, 1);
+        let mut procedural = [0i16, 1, 4, -1]
+            .into_iter()
+            .flat_map(i16::to_le_bytes)
+            .collect::<Vec<_>>();
+        let mut named = [0x12345678u32, 1, 0x87654321, 4]
+            .into_iter()
+            .flat_map(u32::to_le_bytes)
+            .collect::<Vec<_>>();
+        renumber_bindings(&mut procedural, &mut named, &map, 5).unwrap();
+        assert_eq!(
+            procedural,
+            [0i16, 2, 5, -1]
+                .into_iter()
+                .flat_map(i16::to_le_bytes)
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            named,
+            [0x12345678u32, 2, 0x87654321, 5]
+                .into_iter()
+                .flat_map(u32::to_le_bytes)
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn appended_marker_cannot_be_claimed_by_a_source_named_control() {
+        let map = Renumbering::appended(5, 2);
+        let mut named = [0x12345678u32, 5]
+            .into_iter()
+            .flat_map(u32::to_le_bytes)
+            .collect::<Vec<_>>();
+        assert!(renumber_bindings(&mut [], &mut named, &map, 5).is_err());
+    }
 }

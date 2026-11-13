@@ -233,6 +233,8 @@ pub(crate) fn patches(
 
 /// The first-person arms rig a row plays on, with the action states its lookup reads.
 pub(crate) struct ArmsRig {
+    /// Exact source tags visited while resolving this rig and its lookup tables.
+    pub(crate) source_tags: Vec<u32>,
     pub(crate) entity_tag: u32,
     pub(crate) entity: Vec<u8>,
     pub(crate) lookup_tag: u32,
@@ -277,7 +279,9 @@ pub(crate) fn arms_rig(
         .checked_sub(attachment.resource)
         .and_then(|offset| u32::try_from(offset).ok())
         .ok_or_else(|| invalid("First-person attachment row offset overflow"))?;
+    let source_tags = std::cell::RefCell::new(vec![attachment.owner_tag]);
     let read = |tag: u32, what: &str| {
+        source_tags.borrow_mut().push(tag);
         manager
             .read_tag(TagHash(tag))
             .map_err(|error| invalid(format!("Arms rig {what} 0x{tag:08X}: {error}")))
@@ -330,6 +334,7 @@ pub(crate) fn arms_rig(
     let (_, parameters) = table(PARAMETERS, PARAMETERS_CLASS, "parameter dictionary")?;
     let (states_tag, states) = table(STATES, STATES_CLASS, "state table")?;
     Ok(ArmsRig {
+        source_tags: source_tags.into_inner(),
         entity_tag,
         entity: rig,
         lookup_tag,

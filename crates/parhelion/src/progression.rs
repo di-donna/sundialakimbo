@@ -30,7 +30,7 @@ pub(crate) use collections::{
     collection_unlock_index, donor_weapon_collection_page, gear_collection_page,
     node_collectible_children, template_presentation_parents,
     validate_authored_collectible_display_row, validate_authored_collectible_nested_isolation,
-    validate_weapon_material_sets,
+    validate_reclaim_pages, validate_weapon_material_sets,
 };
 
 use std::{

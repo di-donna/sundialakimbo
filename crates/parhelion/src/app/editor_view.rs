@@ -385,12 +385,56 @@ impl PackageAuthoringApp {
             self.draw_barrel_controls(ui, donor);
         }
         self.draw_fired_projectile(ui);
+        if self.recipe.kind.is_weapon() {
+            self.draw_akimbo(ui);
+        }
         if self.show_experimental_options {
             ui.add_space(12.0);
             ui.separator();
             ui.add_space(4.0);
             self.draw_gameplay_technical(ui, donor);
         }
+    }
+
+    fn draw_akimbo(&mut self, ui: &mut egui::Ui) {
+        ui.add_space(8.0);
+        egui::Frame::group(ui.style()).inner_margin(12).show(ui, |ui| {
+            let mut enabled = self.recipe.overrides.akimbo.is_some();
+            if ui.checkbox(&mut enabled, "Akimbo").changed() {
+                self.recipe.overrides.akimbo = enabled.then(Default::default);
+            }
+            ui.label("Carry two copies with separate triggers and magazines.");
+            if enabled {
+                if let Some(intent) = &mut self.recipe.overrides.akimbo {
+                    use crate::weapon::akimbo::{DEFAULT_GAP_MM, MAX_GAP_MM, MIN_GAP_MM, Reload};
+                    ui.horizontal(|ui| {
+                        ui.add(egui::Slider::new(&mut intent.gap_mm, MIN_GAP_MM..=MAX_GAP_MM)
+                            .text("Weapon gap").suffix(" mm"))
+                            .on_hover_text("Adjust the distance between the two weapons while keeping the pair centered on the reticle.");
+                        if ui.add_enabled(intent.gap_mm != DEFAULT_GAP_MM, egui::Button::new("Reset")).clicked() {
+                            intent.gap_mm = DEFAULT_GAP_MM;
+                        }
+                    });
+                    ui.horizontal(|ui| {
+                        ui.label("Reload");
+                        egui::ComboBox::from_id_salt("akimbo-reload-policy")
+                            .selected_text(intent.reload.label())
+                            .show_ui(ui, |ui| {
+                                for policy in [Reload::LowerMagazine, Reload::NonFullHands, Reload::EmptyHands] {
+                                    ui.selectable_value(&mut intent.reload, policy, policy.label());
+                                }
+                            });
+                    });
+                    ui.small(match intent.reload {
+                        Reload::LowerMagazine => "R reloads the hand with fewer rounds; both reload only when both are empty. The other hand can keep firing.",
+                        Reload::NonFullHands => "R reloads each non-full magazine independently. Full hands can keep firing.",
+                        Reload::EmptyHands => "R reloads empty magazines only. Loaded hands can keep firing.",
+                    });
+                }
+                ui.small("Left and right mouse buttons fire each hand. Aiming down sights is disabled.");
+                ui.small("Requires Dawn with akimbo support. Build checks the selected weapon and its edits for compatibility.");
+            }
+        });
     }
 
     pub(super) fn draw_collections_workspace(&mut self, ui: &mut egui::Ui) {

@@ -1,0 +1,204 @@
+{
+  "schema_version": 4,
+  "game_build": 86657,
+  "generation": "12121212121212121212121212121212",
+  "runtime_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "exe_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "packages": [
+    {
+      "path": "packages/w64_akimbo_0a05_0.pkg",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "source_artifacts": [],
+  "profiles": [
+    {
+      "model_tag": 2176887297,
+      "adapter": 7,
+      "rig": {
+        "animation_tag": 2169685965,
+        "skeleton_tag": 2159808512,
+        "rig_tag": 2159808513
+      },
+      "barrel": {
+        "core_tag": 2169685955,
+        "content_tag": 2169685957,
+        "content_definition": 1032,
+        "root_definition": 13408,
+        "barrel_definition": 17328,
+        "core_size": 34944,
+        "variant": 13,
+        "projectile": 4294967295,
+        "content_size": 13956,
+        "property_count": 22,
+        "flags": 16
+      },
+      "visual": {
+        "muzzle_bits": [
+          0,
+          0,
+          0,
+          1065353216,
+          1047386118,
+          857944883,
+          1039408683,
+          1065353214
+        ],
+        "eject_bits": [
+          1055438534,
+          3205147450,
+          3202922185,
+          1057663801,
+          1035125514,
+          3175835590,
+          1041078524,
+          1065353215
+        ],
+        "tracer_tag": 2169686004,
+        "tracer_definition": 6064,
+        "fx": {
+          "tag": 2163168901,
+          "bytes": 34992,
+          "definition": 9976,
+          "endpoint_binding": 1,
+          "selectors": [
+            {
+              "offset": 16704,
+              "particle": 2163407075,
+              "binding": 0,
+              "inputs": 2,
+              "markers": 1,
+              "groups": 3,
+              "program": 2160043823,
+              "program_bytes": 592,
+              "role": 2
+            },
+            {
+              "offset": 17328,
+              "particle": 2163169059,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808794,
+              "program_bytes": 1576,
+              "role": 1
+            },
+            {
+              "offset": 17952,
+              "particle": 2163169060,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808796,
+              "program_bytes": 1544,
+              "role": 1
+            },
+            {
+              "offset": 18576,
+              "particle": 2163169061,
+              "binding": 2,
+              "inputs": 2,
+              "markers": 1,
+              "groups": 2,
+              "program": 2159808798,
+              "program_bytes": 2296,
+              "role": 1
+            },
+            {
+              "offset": 19200,
+              "particle": 2163169062,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808800,
+              "program_bytes": 2392,
+              "role": 1
+            },
+            {
+              "offset": 25344,
+              "particle": 2163169029,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808825,
+              "program_bytes": 1800,
+              "role": 1
+            },
+            {
+              "offset": 25968,
+              "particle": 2163169030,
+              "binding": 2,
+              "inputs": 2,
+              "markers": 1,
+              "groups": 2,
+              "program": 2159808827,
+              "program_bytes": 2588,
+              "role": 1
+            },
+            {
+              "offset": 27840,
+              "particle": 2163169031,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808829,
+              "program_bytes": 1784,
+              "role": 1
+            },
+            {
+              "offset": 28464,
+              "particle": 2163169032,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808831,
+              "program_bytes": 1804,
+              "role": 1
+            },
+            {
+              "offset": 30960,
+              "particle": 2163169033,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808833,
+              "program_bytes": 2072,
+              "role": 1
+            },
+            {
+              "offset": 31584,
+              "particle": 2163169034,
+              "binding": 2,
+              "inputs": 2,
+              "markers": 1,
+              "groups": 2,
+              "program": 2159808835,
+              "program_bytes": 664,
+              "role": 1
+            },
+            {
+              "offset": 32208,
+              "particle": 2163169035,
+              "binding": 2,
+              "inputs": 1,
+              "markers": 1,
+              "groups": 1,
+              "program": 2159808837,
+              "program_bytes": 1736,
+              "role": 1
+            }
+          ]
+        }
+      },
+      "gap_mm": 360,
+      "reload_policy": 3
+    }
+  ]
+}

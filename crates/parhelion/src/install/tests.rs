@@ -4,6 +4,7 @@ use serde_json::json;
 use tempfile::TempDir;
 
 mod account_replacement;
+mod akimbo;
 mod caches;
 mod commit;
 mod loader;

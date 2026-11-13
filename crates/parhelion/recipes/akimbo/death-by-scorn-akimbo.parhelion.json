@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.death-by-scorn-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xC6BD04ED",
+    "expected_name": "Death by Scorn"
+  },
+  "identity": {
+    "item_hash": "0x1520C402",
+    "collectible_hash": "0x7E624B93",
+    "unlock_hash": "0xEBCAA237",
+    "pattern_global_id_hash": "0x16A902EF",
+    "name_hash": "0xAE3E7C02",
+    "type_hash": "0x3AE1655F",
+    "flavor_hash": "0x972C31B3",
+    "source_hash": "0xFBCB7C88",
+    "collection_name_hash": "0x32666E0B",
+    "collection_description_hash": "0x424DDA28",
+    "inventory_hint_hash": "0x98D96E03",
+    "collection_requirement_hash": "0xF35BDCC5"
+  },
+  "name": "Death by Scorn Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

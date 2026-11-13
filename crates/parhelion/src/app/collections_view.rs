@@ -218,6 +218,7 @@ impl PackageAuthoringApp {
 
     pub(super) fn draw_collection_destination(&mut self, ui: &mut egui::Ui) {
         self.draw_destination(ui);
+        ui.weak("Reclaim items from this category in the game's Collections screen. Badges show progress and allow inspection only.");
         let donor = self.recipe.donor.item_hash.parse_u32().unwrap_or_default();
         if self.joins_stock_page(self.recipe.kind, self.recipe.overrides.rarity, donor) {
             self.draw_collection_position(ui);
@@ -294,7 +295,7 @@ impl PackageAuthoringApp {
             self.recipe.overrides.rarity,
             self.recipe.donor.item_hash.parse_u32().unwrap_or_default(),
         );
-        ui.strong("Destination");
+        ui.strong("Reclaim From");
         if exotic {
             ui.label("Exotic weapons appear under Exotics.");
             return;

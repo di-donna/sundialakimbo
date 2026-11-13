@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.fighting-lion-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xD38BCABA",
+    "expected_name": "Fighting Lion"
+  },
+  "identity": {
+    "item_hash": "0x8E9DE451",
+    "collectible_hash": "0xD9F1548E",
+    "unlock_hash": "0x1FE56178",
+    "pattern_global_id_hash": "0xC79A2E38",
+    "name_hash": "0x30BC0A1D",
+    "type_hash": "0x9505254C",
+    "flavor_hash": "0x88196E30",
+    "source_hash": "0xA9554003",
+    "collection_name_hash": "0x58751BEA",
+    "collection_description_hash": "0xCD4715EB",
+    "inventory_hint_hash": "0xA3E9B448",
+    "collection_requirement_hash": "0xB1BFA700"
+  },
+  "name": "Fighting Lion Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

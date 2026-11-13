@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.the-last-word-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x514E69D9",
+    "expected_name": "The Last Word"
+  },
+  "identity": {
+    "item_hash": "0xFA57E867",
+    "collectible_hash": "0xF2018648",
+    "unlock_hash": "0xF1C12D16",
+    "pattern_global_id_hash": "0xA10DFD7E",
+    "name_hash": "0x9C52F04F",
+    "type_hash": "0x50F01572",
+    "flavor_hash": "0x8BB501DE",
+    "source_hash": "0x66C89C5D",
+    "collection_name_hash": "0xF12CDB68",
+    "collection_description_hash": "0x962DC7FD",
+    "inventory_hint_hash": "0x64036E52",
+    "collection_requirement_hash": "0xE858D7AA"
+  },
+  "name": "The Last Word Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

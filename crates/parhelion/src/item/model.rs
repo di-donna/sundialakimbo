@@ -352,6 +352,7 @@ impl WeaponInventorySlot {
 /// and embedded choices.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct WeaponCloneOverrides {
+    pub akimbo: Option<crate::weapon::akimbo::Intent>,
     pub sparrow: Option<crate::vehicle::Sparrow>,
     pub remove_lore: bool,
     #[cfg(feature = "d2-model-importer")]
@@ -940,6 +941,12 @@ impl WeaponCloneSpec {
 
     pub fn validate(&self) -> AuthoringResult<()> {
         validate_parhelion_namespace(&self.namespace).map_err(invalid)?;
+        if let Some(akimbo) = &self.overrides.akimbo {
+            if !self.kind.is_weapon() {
+                return Err(invalid("Only weapons can be akimbo"));
+            }
+            akimbo.validate().map_err(invalid)?;
+        }
         #[cfg(feature = "d2-model-importer")]
         if let Some(graph) = &self.overrides.imported_graph {
             for reference in std::iter::once(graph).chain(graph.attachments.iter()) {
@@ -1160,6 +1167,8 @@ pub struct WeaponProjectSpec {
 #[derive(Clone, Debug)]
 pub struct NewWeaponProjectPlan {
     pub weapons: Vec<NewWeaponPlan>,
+    pub akimbo_profiles: Vec<crate::weapon::akimbo::deployment::Profile>,
+    pub akimbo_source_tags: Vec<u32>,
     pub sunrise: SunriseProjectMetadata,
 }
 

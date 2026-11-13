@@ -153,6 +153,33 @@ pub(crate) fn template_presentation_parents(
 /// The stock Collections root, "Items". Every item page in Collections descends from it.
 const COLLECTIONS_ROOT_NODE_HASH: u32 = 0xE1EA_9713;
 
+/// Badges are an inspection/progress view. Every authored collectible must also
+/// remain listed on a reachable category page where the native client offers reclaim.
+pub(crate) fn validate_reclaim_pages(
+    nodes: &[u8],
+    authored: &[ProjectAuthoredRow],
+) -> AuthoringResult<()> {
+    let categories = node_descendants(nodes, COLLECTIONS_ROOT_NODE_HASH)?;
+    for entry in authored {
+        let mut reachable = false;
+        for page in entry.pages.iter() {
+            if categories.contains(&usize::from(page))
+                && node_collectible_children(nodes, page)?
+                    .contains(&entry.authored_collectible_index)
+            {
+                reachable = true;
+            }
+        }
+        if !reachable {
+            return Err(invalid(format!(
+                "Authored collectible {} has no reachable Collections category for reclaim; badge membership alone only allows inspection",
+                entry.authored_collectible_index
+            )));
+        }
+    }
+    Ok(())
+}
+
 /// Every presentation node under the stock node `root_hash`, the root included.
 fn node_descendants(nodes: &[u8], root_hash: u32) -> AuthoringResult<BTreeSet<usize>> {
     let (node_count, _, node_rows, _) = array_at(nodes, 8)?;

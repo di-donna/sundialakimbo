@@ -358,6 +358,7 @@ fn owned_file_name(name: &str) -> bool {
     matches!(name, LEASE_FILE | COMPLETE_FILE | MANIFEST_FILE_NAME)
         || name == crate::merge_data::REPORT_FILE_NAME
         || name == map_diagnostics::FILE_NAME
+        || name == crate::weapon::akimbo::deployment::FILE_NAME
         || mission_script::path(name).is_some()
         || authored_package_for_file_name(name).is_some()
         || name

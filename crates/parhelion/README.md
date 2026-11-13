@@ -176,7 +176,7 @@ Authored weapons accept shaders even when their base, appearance, or ornament is
 
 **Collections** chooses where your weapon appears in the game's Collections. By default it uses the node matching your weapon's ammo type and weapon type, creating that node when the game has no stock one for the combination. Adding a page creates one shared page that uses the stock weapon-type name and icon. Exotic weapons always use the Exotics collection for their inventory slot.
 
-Installing unlocks your weapons in Collections and, by default, adds them to the **Project Sunrise** or **Dawn** badge for your active runtime. Get a copy from Collections to add it to your inventory.
+Installing unlocks your weapons in Collections. Get a copy from **Collections > Weapons > Ammo Type > Weapon Type**, or **Collections > Exotics** for exotic weapons. By default, they also join the **Project Sunrise** or **Dawn** badge for your active runtime. Badge entries show progress and allow inspection only; use the weapon's category page to reclaim it.
 
 **Position** sets whether your item goes before or after the node's own entries. **Automatic** puts it first, so it is easier to find, unless another installed Sunrise mod changes Collections. Then it goes last, since Sunrise can only add one mod's entries after another's. The Sunrise badge and added pages follow the same rule. **First** and **Last** always place it there, and on Sunrise 0.6 or later **First** warns that it isn't compatible with Sunrise Studio mods that change Collections.
 
@@ -605,3 +605,7 @@ Generated only when your recipes need them. Ability property banks gain entries 
 Keep the complete set together, even if you only changed one item. Parhelion manages these files during install and uninstall and leaves stock packages intact.
 
 See the [Sundial README](../../README.md) for bug reports, credits, and licensing.
+
+## Akimbo Development Build
+
+Enable **Gameplay > Akimbo** to build paired weapons for the accompanying Dawn akimbo runtime. The SMG, direct-gun and finite-burst adapters check native firing and rig layouts. Finite uncharged bursts of 2-64 rounds require matching native count routes, digital primary input and ordinary magazine reloads. The expansion is still in development; charged triggers, beams, swords and unresolved special layouts remain unsupported. Build checks the resolved weapon, geometry, shaders and effects; unsupported combinations are rejected. Official Dawn v1.7.2 does not provide the required capability. See [akimbo authoring](AKIMBO-AUTHORING.md) for setup and current limits, [checkpoint status](AKIMBO-STATUS.md) for validation and remaining acceptance, [the 33 recipe examples](recipes/akimbo/README.md), and [the asset pipeline](AKIMBO-ASSETS.md) for compiler details.

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.cuboid-aru-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x8C2CD2E8",
+    "expected_name": "Cuboid ARu"
+  },
+  "identity": {
+    "item_hash": "0x3D5B4C1B",
+    "collectible_hash": "0xE6C0F534",
+    "unlock_hash": "0x550C5892",
+    "pattern_global_id_hash": "0x582A86D2",
+    "name_hash": "0xB1C344CB",
+    "type_hash": "0xB294186E",
+    "flavor_hash": "0x8B4412DA",
+    "source_hash": "0xE7E62CCD",
+    "collection_name_hash": "0xA5A24398",
+    "collection_description_hash": "0xF12F8361",
+    "inventory_hint_hash": "0x39AD9056",
+    "collection_requirement_hash": "0x94B2B2BE"
+  },
+  "name": "Cuboid ARu Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

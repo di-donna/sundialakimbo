@@ -321,11 +321,27 @@ pub fn validate_extension(
                 );
             }
             for (field, stride, kind) in [(0xC0, 2, 0x80800006), (0x110, 8, 0x80808FFE)] {
-                let (a, b) = unchanged(field, stride, kind)?;
+                let (a, b) = prefix(field, stride, kind)?;
                 ensure!(
-                    a == b,
+                    a.len() == b.len(),
                     "Extended controls change native constraint bindings"
                 );
+                for (&a, &b) in a.iter().zip(&b) {
+                    if stride == 2 {
+                        ensure!(
+                            moved.index(i32::from(original.u16(a)? as i16))?
+                                == i32::from(converted.u16(b)? as i16),
+                            "Extended controls move a procedural binding to the wrong bone"
+                        );
+                    } else {
+                        ensure!(
+                            original.u32(a)? == converted.u32(b)?
+                                && moved.index(original.u32(a + 4)? as i32)?
+                                    == converted.u32(b + 4)? as i32,
+                            "Extended controls move a named binding to the wrong bone"
+                        );
+                    }
+                }
             }
             let (a, b) = prefix(0x90, 8, 0x8080907F)?;
             ensure!(

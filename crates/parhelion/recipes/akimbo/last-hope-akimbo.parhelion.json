@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.last-hope-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x71F46BCF",
+    "expected_name": "Last Hope"
+  },
+  "identity": {
+    "item_hash": "0x53F973EB",
+    "collectible_hash": "0x8238F4E4",
+    "unlock_hash": "0x74EA0A22",
+    "pattern_global_id_hash": "0xC65F4722",
+    "name_hash": "0xC8B11DFB",
+    "type_hash": "0x4BBE9C7E",
+    "flavor_hash": "0xC517CECA",
+    "source_hash": "0x67BDC39D",
+    "collection_name_hash": "0x84DB2D88",
+    "collection_description_hash": "0xA9723AF5",
+    "inventory_hint_hash": "0x34823206",
+    "collection_requirement_hash": "0xE56B4A4E"
+  },
+  "name": "Last Hope Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

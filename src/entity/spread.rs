@@ -47,62 +47,65 @@ impl Spread {
             .map_err(|_| "Barrel definition offset is too large")?;
         rows_fit(owner, definition, 1, 0x1DC0)?;
         let slot = definition + SPREAD;
-        let delta = i64::from_le_bytes(bytes_at(owner, slot)?);
-        if delta == 0 {
-            return Ok(Self {
-                slot,
-                pattern: None,
-            });
-        }
-        let pattern = relative_offset(slot, 0, delta)?;
-        bytes_at::<0x68>(owner, pattern)?;
-        let marker = pattern
-            .checked_sub(4)
-            .ok_or("Barrel spread has no class marker")?;
-        if u32_at(owner, marker)? != PATTERN {
-            return Err("Barrel spread pointer does not reach a supported pattern".into());
-        }
-        for ordinal in 0..3 {
-            let at = pattern + ordinal * 0x18;
-            if u32_at(owner, at)? != PATTERN
-                || u32_at(owner, at + 4)? != ordinal as u32
-                || u32_at(owner, at + 8)? != binding.owner_tag
-                || u32_at(owner, at + 12)? != PATTERN
-                || u64_at(owner, at + 16)? != pattern as u64
-            {
-                return Err("Barrel spread interface does not reference its own pattern".into());
-            }
-        }
-        let (count, header, rows, class) = native_array_at(owner, pattern + 0x48)?;
-        let marker = header
-            .checked_sub(4)
-            .ok_or("Barrel spread rings have no array marker")?;
-        if class != RING || u32_at(owner, marker)? != 0x8080_9FBD || count == 0 {
-            return Err("Barrel spread rings have an unsupported native array".into());
-        }
-        rows_fit(owner, rows, count, 20)?;
-        let pellets = u32_at(owner, pattern + 0x60)?;
-        if !(1..=0x7FFF).contains(&pellets) {
-            return Err(format!(
-                "Barrel spread pellet count {pellets} is unsupported"
-            ));
-        }
-        let total = (0..count).try_fold(0_u64, |total, index| {
-            u32_at(owner, rows + index * 20 + 12).map(|value| total + u64::from(value))
-        })?;
-        if total != u64::from(pellets) {
-            return Err("Barrel spread rings and total pellet count disagree".into());
-        }
         Ok(Self {
             slot,
-            pattern: Some(Layout {
-                offset: pattern,
-                rings: rows..rows + count * 20,
-                count: count as u64,
-                pellets: pellets as u16,
-            }),
+            pattern: layout_at(owner, binding.owner_tag, slot)?,
         })
     }
+}
+
+/// Both the Barrel and selected Weapon Content hold a relative pointer to the
+/// same native pattern type. The complete pattern retains its own owner links.
+fn layout_at(owner: &[u8], owner_tag: u32, slot: usize) -> Result<Option<Layout>, String> {
+    let delta = i64::from_le_bytes(bytes_at(owner, slot)?);
+    if delta == 0 {
+        return Ok(None);
+    }
+    let pattern = relative_offset(slot, 0, delta)?;
+    bytes_at::<0x68>(owner, pattern)?;
+    let marker = pattern
+        .checked_sub(4)
+        .ok_or("Barrel spread has no class marker")?;
+    if u32_at(owner, marker)? != PATTERN {
+        return Err("Barrel spread pointer does not reach a supported pattern".into());
+    }
+    for ordinal in 0..3 {
+        let at = pattern + ordinal * 0x18;
+        if u32_at(owner, at)? != PATTERN
+            || u32_at(owner, at + 4)? != ordinal as u32
+            || u32_at(owner, at + 8)? != owner_tag
+            || u32_at(owner, at + 12)? != PATTERN
+            || u64_at(owner, at + 16)? != pattern as u64
+        {
+            return Err("Barrel spread interface does not reference its own pattern".into());
+        }
+    }
+    let (count, header, rows, class) = native_array_at(owner, pattern + 0x48)?;
+    let marker = header
+        .checked_sub(4)
+        .ok_or("Barrel spread rings have no array marker")?;
+    if class != RING || u32_at(owner, marker)? != 0x8080_9FBD || count == 0 {
+        return Err("Barrel spread rings have an unsupported native array".into());
+    }
+    rows_fit(owner, rows, count, 20)?;
+    let pellets = u32_at(owner, pattern + 0x60)?;
+    if !(1..=0x7FFF).contains(&pellets) {
+        return Err(format!(
+            "Barrel spread pellet count {pellets} is unsupported"
+        ));
+    }
+    let total = (0..count).try_fold(0_u64, |total, index| {
+        u32_at(owner, rows + index * 20 + 12).map(|value| total + u64::from(value))
+    })?;
+    if total != u64::from(pellets) {
+        return Err("Barrel spread rings and total pellet count disagree".into());
+    }
+    Ok(Some(Layout {
+        offset: pattern,
+        rings: rows..rows + count * 20,
+        count: count as u64,
+        pellets: pellets as u16,
+    }))
 }
 
 /// Pellets per bullet in the final Barrel. A null spread fires one, malformed data is an error.
@@ -189,7 +192,22 @@ pub fn read_pattern(
     owner: &[u8],
     binding: WeaponComponentBinding,
 ) -> Result<Option<Pattern>, String> {
-    let Some(layout) = Spread::read(owner, binding)?.pattern else {
+    geometry(owner, Spread::read(owner, binding)?.pattern)
+}
+
+/// Read a source-owned native pattern pointer, including a selected Weapon
+/// Content override. This checks its type, reciprocal interfaces and ring data;
+/// a null pointer means the caller must retain the Barrel's fallback pattern.
+pub fn read_pattern_at(
+    owner: &[u8],
+    owner_tag: u32,
+    slot: usize,
+) -> Result<Option<Pattern>, String> {
+    geometry(owner, layout_at(owner, owner_tag, slot)?)
+}
+
+fn geometry(owner: &[u8], layout: Option<Layout>) -> Result<Option<Pattern>, String> {
+    let Some(layout) = layout else {
         return Ok(None);
     };
     let rings = (layout.rings.start..layout.rings.end)

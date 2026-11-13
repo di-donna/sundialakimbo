@@ -887,7 +887,9 @@ fn validate_record(record: &Record, target: &Path, backup_root: &Path) -> Result
     }
     let mut legacy_names = BTreeSet::new();
     for artifact in &record.legacy {
-        package_path(artifact)?;
+        if artifact.file_name != crate::weapon::akimbo::deployment::FILE_NAME {
+            package_path(artifact)?;
+        }
         validate_transaction_digest(&TransactionDigest::from(artifact), &artifact.file_name)?;
         if !legacy_names.insert(&artifact.file_name) {
             return Err(InstallError::validation("Repeated legacy cleanup package"));

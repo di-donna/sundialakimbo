@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.whisper-of-the-worm-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x70BEF156",
+    "expected_name": "Whisper of the Worm"
+  },
+  "identity": {
+    "item_hash": "0xEBB670BA",
+    "collectible_hash": "0xEE070E2B",
+    "unlock_hash": "0x6BD3ACAF",
+    "pattern_global_id_hash": "0x29AADC77",
+    "name_hash": "0x774E78FA",
+    "type_hash": "0xE147EA87",
+    "flavor_hash": "0x9D4D77AB",
+    "source_hash": "0x46566330",
+    "collection_name_hash": "0xB5EFD243",
+    "collection_description_hash": "0x9035AB8C",
+    "inventory_hint_hash": "0xD74997EB",
+    "collection_requirement_hash": "0x4A790CF7"
+  },
+  "name": "Whisper of the Worm Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

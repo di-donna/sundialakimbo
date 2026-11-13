@@ -1,0 +1,233 @@
+[
+  {
+    "name": "Aachen-LR2 Akimbo",
+    "item_hash": "0x851591F5",
+    "sha256": "9933F56E5F89B07F07983105E8C1C24B076234828A3D08DEBF086768AD5002B8",
+    "recipe": "aachen-lr2-akimbo.parhelion.json",
+    "family": "Sniper Rifle"
+  },
+  {
+    "name": "Acantha-D Akimbo",
+    "item_hash": "0xAE63B2C1",
+    "sha256": "343BB107C5B1013C076483EAF99F7A0C2067D0ACCABB4CFAA602DA4D29985648",
+    "recipe": "acantha-d-akimbo.parhelion.json",
+    "family": "Grenade Launcher"
+  },
+  {
+    "name": "Antiope-D Akimbo",
+    "item_hash": "0xA8D66C31",
+    "sha256": "2A89305FAE72CF8A094960F56975D6EB9DCA70754339EE642566DD4C4BE6F7D5",
+    "recipe": "antiope-d-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "Armillary PSu Akimbo",
+    "item_hash": "0xF6B266B0",
+    "sha256": "649EC4FCE86DCD089C2ABD679F6129E3CBACFABA23EB9F6567380BC2259286AC",
+    "recipe": "armillary-psu-akimbo.parhelion.json",
+    "family": "Scout Rifle"
+  },
+  {
+    "name": "Azimuth DSu Akimbo",
+    "item_hash": "0x3200D0DF",
+    "sha256": "7A75C221C3E6BB754FB428F710BF3D589FFB640CB72E2CAA3C6044DF08AE4BFA",
+    "recipe": "azimuth-dsu-akimbo.parhelion.json",
+    "family": "Hand Cannon"
+  },
+  {
+    "name": "Badlands Mk.24 Akimbo",
+    "item_hash": "0x1CB8AEF1",
+    "sha256": "D74092B46BF485239B47C9E36D66CE7D3E88B9C6B0004CCE2F019688BA7AB87D",
+    "recipe": "badlands-mk-24-akimbo.parhelion.json",
+    "family": "Shotgun"
+  },
+  {
+    "name": "Blue Shift Akimbo",
+    "item_hash": "0x377F5C17",
+    "sha256": "69F8239F381CB89939712A39E3157546E5F792C7A229FFE3305015F8F1D6BC12",
+    "recipe": "blue-shift-akimbo.parhelion.json",
+    "family": "Rocket Launcher"
+  },
+  {
+    "name": "Cerberus+1 Akimbo",
+    "item_hash": "0x5281C79B",
+    "sha256": "F5B2F4FC8DFCE831E207150B2A9E91F732956E88B01BC3350F4ED1D2295A2E0B",
+    "recipe": "cerberus-1-akimbo.parhelion.json",
+    "family": "Auto Rifle"
+  },
+  {
+    "name": "Copperhead-4sn Akimbo",
+    "item_hash": "0x67BACF71",
+    "sha256": "02142FB27A159535704531DFFDFE5DFA194C77A263814075114A213E588FC72B",
+    "recipe": "copperhead-4sn-akimbo.parhelion.json",
+    "family": "Sniper Rifle"
+  },
+  {
+    "name": "Cuboid ARu Akimbo",
+    "item_hash": "0x3D5B4C1B",
+    "sha256": "4738F96000B63DE111CD36B02040A5ECC19A79017F0D17A290FEE844C0743677",
+    "recipe": "cuboid-aru-akimbo.parhelion.json",
+    "family": "Auto Rifle"
+  },
+  {
+    "name": "D.A.R.C.I. Akimbo",
+    "item_hash": "0xDBC1BA55",
+    "sha256": "34431A3A7D1CF8ADA9833E3503EA0650F021A56B2BA752780604B1E1443438BF",
+    "recipe": "d-a-r-c-i-akimbo.parhelion.json",
+    "family": "Sniper Rifle"
+  },
+  {
+    "name": "Dark Decider Akimbo",
+    "item_hash": "0x2AA2FCF5",
+    "sha256": "0E3350F69BE4E9F3EC40C464BCAA0473B1007ECC3403B6D75A21E7586E55D719",
+    "recipe": "dark-decider-akimbo.parhelion.json",
+    "family": "Auto Rifle"
+  },
+  {
+    "name": "Death Adder Akimbo",
+    "item_hash": "0x70634B15",
+    "sha256": "1229192A00CC4B243549519D5B2F612B0034CB894772FCB8AB4ED80ED1358916",
+    "recipe": "death-adder-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "Death by Scorn Akimbo",
+    "item_hash": "0x1520C402",
+    "sha256": "6AAB79E4699842C601B7E17CDEA405826DAA33C37FF36662792231E151256F2E",
+    "recipe": "death-by-scorn-akimbo.parhelion.json",
+    "family": "Sidearm"
+  },
+  {
+    "name": "Drang Akimbo",
+    "item_hash": "0xAC754F0E",
+    "sha256": "2DF3BF43B96075A7531B74C0F8475CB97460C643E81D206EC5B35800152FCABE",
+    "recipe": "drang-akimbo.parhelion.json",
+    "family": "Sidearm"
+  },
+  {
+    "name": "Eriana's Vow Akimbo",
+    "item_hash": "0xB8E2B7DF",
+    "sha256": "3D919098B2C29A2EEEF7D6A164FF724AAE1E8D64162739E966EDC4DAB77B0C35",
+    "recipe": "eriana-s-vow-akimbo.parhelion.json",
+    "family": "Hand Cannon"
+  },
+  {
+    "name": "Fighting Lion Akimbo",
+    "item_hash": "0x8E9DE451",
+    "sha256": "1A6485EF0135BB37C4A2041CA34E7965AE411CCA71ABD01528259D348A16199A",
+    "recipe": "fighting-lion-akimbo.parhelion.json",
+    "family": "Grenade Launcher"
+  },
+  {
+    "name": "IKELOS_SMG_v1.0.1 Akimbo",
+    "item_hash": "0xA4BA96B4",
+    "sha256": "ADEC351B4C470C087F382B11EE35635C862FDD68783D8A2DD040865F63BA9D90",
+    "recipe": "ikelos-smg-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "Last Hope Akimbo",
+    "item_hash": "0x53F973EB",
+    "sha256": "25332E0537EB0AB85B0C56D1288AC64D5664EB6BC0E8530866573E0D0B430926",
+    "recipe": "last-hope-akimbo.parhelion.json",
+    "family": "Sidearm"
+  },
+  {
+    "name": "MIDA Mini-Tool Akimbo",
+    "item_hash": "0xA4811058",
+    "sha256": "C0B022D8C586DF09D847117EAA8518F49B01C379B8E4438C54EB3AA2365DC94F",
+    "recipe": "mida-mini-tool-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "Mob Justice Akimbo",
+    "item_hash": "0x3E06BC1E",
+    "sha256": "E5DBC311F6835772C7D0D82D3BD30529CE6C764D77E7FCD0EA6792728DC151E3",
+    "recipe": "mob-justice-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "New City Akimbo",
+    "item_hash": "0x181AD166",
+    "sha256": "73906B29D2C113D173699AA50F605E18F0EDA99440254EA852296172195EDBA1",
+    "recipe": "new-city-akimbo.parhelion.json",
+    "family": "Submachine Gun"
+  },
+  {
+    "name": "Nightshade Akimbo",
+    "item_hash": "0x7613D499",
+    "sha256": "3C0CB3BB2F842C2A1B97CDDCC34A63DF19AC3939C44E8889C97D8D938C3B64AA",
+    "recipe": "nightshade-akimbo.parhelion.json",
+    "family": "Pulse Rifle"
+  },
+  {
+    "name": "Origin Story Akimbo",
+    "item_hash": "0x8D5821AA",
+    "sha256": "8581AFC1A2F232DB26C3F893735FF624CE1914E5D7FDEA1E3CC69A9952A4FBC7",
+    "recipe": "origin-story-akimbo.parhelion.json",
+    "family": "Auto Rifle"
+  },
+  {
+    "name": "Rat King Akimbo",
+    "item_hash": "0x17A53F9B",
+    "sha256": "7A7F063A3BEF0E55CC039EE1C5D0B98DBA9FE93C07582B3AF19CABECDCD1C8EA",
+    "recipe": "rat-king-akimbo.parhelion.json",
+    "family": "Sidearm"
+  },
+  {
+    "name": "Sweet Business Akimbo",
+    "item_hash": "0x1F3235B3",
+    "sha256": "D5F17659C69C8D2C7B904A0377ADE885A1B34FCEB743C5C1F99EB1516FFC37A6",
+    "recipe": "sweet-business-akimbo.parhelion.json",
+    "family": "Auto Rifle"
+  },
+  {
+    "name": "The Last Dance Akimbo",
+    "item_hash": "0xE6C68654",
+    "sha256": "7D40D576555017D747A3F8B4A72D8B159A21CCAC1476073FD07D6DD1B632EE93",
+    "recipe": "the-last-dance-akimbo.parhelion.json",
+    "family": "Sidearm"
+  },
+  {
+    "name": "The Last Word Akimbo",
+    "item_hash": "0xFA57E867",
+    "sha256": "4C00AE6BD328CCB00AFE2BE19AC05D9D21DF6A977C779C3CEE4BA11EF2C8F395",
+    "recipe": "the-last-word-akimbo.parhelion.json",
+    "family": "Hand Cannon"
+  },
+  {
+    "name": "The Prospector Akimbo",
+    "item_hash": "0x47219CC9",
+    "sha256": "151B64BBD3C819E360A7BFAC06C67B01280175947B24C8B10EC51DC951E231AF",
+    "recipe": "the-prospector-akimbo.parhelion.json",
+    "family": "Grenade Launcher"
+  },
+  {
+    "name": "Thorn Akimbo",
+    "item_hash": "0xCADD2E33",
+    "sha256": "9A65B9D1D4DB5838DD9680A5056960586B59B642B08642CE8FC25141054A06E1",
+    "recipe": "thorn-akimbo.parhelion.json",
+    "family": "Hand Cannon"
+  },
+  {
+    "name": "Thunderlord Akimbo",
+    "item_hash": "0x78F5487F",
+    "sha256": "FC8C141D314C951BC90905228D336870A003D942508EF3A0997007E9CADF0672",
+    "recipe": "thunderlord-akimbo.parhelion.json",
+    "family": "Machine Gun"
+  },
+  {
+    "name": "Vigilance Wing Akimbo",
+    "item_hash": "0x27686AF4",
+    "sha256": "571F4DF06931217BA70742B1C8C8F7B57B5D5E777D880A3476767EB79F16F747",
+    "recipe": "vigilance-wing-akimbo.parhelion.json",
+    "family": "Pulse Rifle"
+  },
+  {
+    "name": "Whisper of the Worm Akimbo",
+    "item_hash": "0xEBB670BA",
+    "sha256": "E9BCE059E9C7365EB581CF9E560CFA3D1283C7ED929C0D71AE2126F91ED783FB",
+    "recipe": "whisper-of-the-worm-akimbo.parhelion.json",
+    "family": "Sniper Rifle"
+  }
+]

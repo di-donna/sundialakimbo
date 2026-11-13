@@ -4,6 +4,8 @@ mod compile;
 mod document;
 mod error;
 pub use error::RecipeError;
+#[cfg(test)]
+mod akimbo_tests;
 mod copy;
 mod variant;
 
@@ -687,6 +689,9 @@ pub struct WeaponLocaleTextRecipe {
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct WeaponRecipeOverrides {
+    /// Paired-weapon intent. Builds require the complete asset and native runtime pipeline.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub akimbo: Option<crate::weapon::akimbo::Intent>,
     /// Private driving motion and the complete vehicle graph an authored Sparrow summons.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sparrow: Option<crate::vehicle::Sparrow>,
@@ -1154,6 +1159,7 @@ impl WeaponRecipe {
         // collection, story and independent artwork do not depend on those rows.
         let previous = std::mem::take(&mut self.overrides);
         self.overrides = WeaponRecipeOverrides {
+            akimbo: previous.akimbo,
             collection_destination: previous.collection_destination,
             collection_position: previous.collection_position,
             exclude_from_sunrise_badge: previous.exclude_from_sunrise_badge,

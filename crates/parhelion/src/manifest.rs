@@ -41,6 +41,9 @@ pub(crate) struct ManifestDocument {
     /// Executable mission sidecars published atomically with their activity packages.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(crate) mission_scripts: Vec<ArtifactMetadata>,
+    /// Hash-bound native registration published in the same transaction as direct-layout packages.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub(crate) akimbo_bindings: Option<ArtifactMetadata>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub(crate) mods: Vec<crate::mod_family::Member>,
 }
@@ -78,6 +81,20 @@ impl ManifestDocument {
         validate_artifact_metadata("merge data", &self.merge_data)?;
         validate_merge_data(&self.artifacts, &self.merge_data)?;
         validate_artifact_metadata("mission controller", &self.mission_scripts)?;
+        if let Some(binding) = &self.akimbo_bindings {
+            use crate::weapon::akimbo::deployment;
+            validate_artifact_metadata("akimbo binding", std::slice::from_ref(binding))?;
+            if binding.file_name != deployment::FILE_NAME
+                || binding.byte_length > deployment::BYTE_LIMIT
+                || !self.mods.is_empty()
+                || !self.merge_data.is_empty()
+            {
+                return Err(
+                    "Akimbo bindings require the direct package layout and a bounded descriptor"
+                        .into(),
+                );
+            }
+        }
         let mut scripts = BTreeSet::new();
         for artifact in &self.mission_scripts {
             use sundial::package_authoring::mod_content::mission_script;

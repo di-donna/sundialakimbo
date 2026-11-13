@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.mida-mini-tool-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xB824C63C",
+    "expected_name": "MIDA Mini-Tool"
+  },
+  "identity": {
+    "item_hash": "0xA4811058",
+    "collectible_hash": "0x0B13EB35",
+    "unlock_hash": "0xAF200EBD",
+    "pattern_global_id_hash": "0xA23CA3AD",
+    "name_hash": "0x8DF6A164",
+    "type_hash": "0x8CA061AD",
+    "flavor_hash": "0x8C40FBA1",
+    "source_hash": "0x8F0EE8EE",
+    "collection_name_hash": "0xB3C74021",
+    "collection_description_hash": "0x99850B1E",
+    "inventory_hint_hash": "0x3414723D",
+    "collection_requirement_hash": "0x322C7749"
+  },
+  "name": "MIDA Mini-Tool Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

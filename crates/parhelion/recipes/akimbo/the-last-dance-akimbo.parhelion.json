@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.the-last-dance-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xEC75FE93",
+    "expected_name": "The Last Dance"
+  },
+  "identity": {
+    "item_hash": "0xE6C68654",
+    "collectible_hash": "0x4B3370E9",
+    "unlock_hash": "0xD54D6531",
+    "pattern_global_id_hash": "0x2AF66959",
+    "name_hash": "0x346DAFC0",
+    "type_hash": "0xBDC95611",
+    "flavor_hash": "0x4B402995",
+    "source_hash": "0xF27518AA",
+    "collection_name_hash": "0x9C2B4A05",
+    "collection_description_hash": "0xDB80C8DA",
+    "inventory_hint_hash": "0xBCA89F2D",
+    "collection_requirement_hash": "0xD51521C5"
+  },
+  "name": "The Last Dance Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.cerberus-1-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x5BDBCC56",
+    "expected_name": "Cerberus+1"
+  },
+  "identity": {
+    "item_hash": "0x5281C79B",
+    "collectible_hash": "0x795E0BB4",
+    "unlock_hash": "0x4FB00012",
+    "pattern_global_id_hash": "0x59EB9E52",
+    "name_hash": "0xC6E9C04B",
+    "type_hash": "0xC7BA93EE",
+    "flavor_hash": "0x85E7BA5A",
+    "source_hash": "0xE289D44D",
+    "collection_name_hash": "0x6D3AD294",
+    "collection_description_hash": "0x3A4C0AE1",
+    "inventory_hint_hash": "0x3B6EA7D6",
+    "collection_requirement_hash": "0xDDCF3A3E"
+  },
+  "name": "Cerberus+1 Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

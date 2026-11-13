@@ -93,8 +93,14 @@ pub(super) fn validate_request_with_progress(
         4,
         7,
     ));
-    let obsolete_artifacts =
+    let mut obsolete_artifacts =
         find_obsolete_artifacts(&target_packages_directory, &manifest.artifacts)?;
+    let installed_binding = akimbo::installed(&target_packages_directory)?;
+    if manifest.akimbo.is_none()
+        && let Some(binding) = installed_binding
+    {
+        obsolete_artifacts.push(binding);
+    }
     progress(InstallProgress::item(
         InstallPhase::Checking,
         "Checking Runtime Cache",
@@ -131,8 +137,13 @@ pub(super) fn validate_request_with_progress(
     manifest
         .inputs
         .verify(&staged_run_directory, &target_packages_directory)?;
-    let manifest = std::sync::Arc::unwrap_or_clone(manifest);
+    let mut manifest = std::sync::Arc::unwrap_or_clone(manifest);
+    if let Some(binding) = &manifest.akimbo {
+        // Publication order puts the descriptor after every package it names.
+        manifest.artifacts.push(binding.metadata.clone());
+    }
     Ok(ValidatedRun {
+        akimbo: manifest.akimbo,
         replacement_guard,
         staged_run_directory,
         target_packages_directory,
@@ -266,6 +277,14 @@ pub(super) fn validate_manifest_and_staged_files(
     let authored_grants = manifest_grants(&manifest.project);
     let source_artifacts = validate_source_artifact_records(manifest.source_artifacts)?;
     let artifacts = validate_artifact_records(manifest.artifacts)?;
+    let akimbo = akimbo::validate(
+        staged_run_directory,
+        target_packages_directory,
+        manifest.akimbo_bindings,
+        &source_artifacts,
+        &artifacts,
+        recipes.paired_recipes,
+    )?;
     check_layout(target_packages_directory, &artifacts)?;
     let selected_recipe_files = manifest.selected_recipe_files;
     let selected_map_files = manifest.selected_map_files;
@@ -296,6 +315,7 @@ pub(super) fn validate_manifest_and_staged_files(
         target_packages_directory,
     )?;
     Ok(ValidatedManifest {
+        akimbo,
         inputs,
         packages,
         source_artifacts,
@@ -551,6 +571,7 @@ fn validate_staged_recipe_snapshots(
     let mut selection = SelectionFingerprint::default();
     let mut variants = Vec::new();
     let mut files = Vec::new();
+    let mut paired_recipes = 0;
     for (index, relative_path) in manifest.selected_recipe_files.iter().enumerate() {
         let path = staged_run_directory.join(relative_path);
         reject_symlink(&path, "staged recipe")?;
@@ -589,6 +610,7 @@ fn validate_staged_recipe_snapshots(
                 path.display()
             ))
         })?;
+        paired_recipes += usize::from(spec.overrides.akimbo.is_some());
         let identity = spec.identity;
         let matches_manifest = weapon.namespace == recipe.namespace
             && weapon.name == recipe.name
@@ -660,10 +682,15 @@ fn validate_staged_recipe_snapshots(
             "The staged recipe selection does not match the manifest fingerprint",
         ));
     }
-    Ok(ValidatedRecipes { variants, files })
+    Ok(ValidatedRecipes {
+        variants,
+        files,
+        paired_recipes,
+    })
 }
 
 struct ValidatedRecipes {
+    paired_recipes: usize,
     variants: Vec<replacement::StockPlugVariant>,
     files: Vec<ArtifactMetadata>,
 }

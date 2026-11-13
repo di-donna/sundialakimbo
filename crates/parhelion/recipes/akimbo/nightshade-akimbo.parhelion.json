@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.nightshade-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0x14373AFC",
+    "expected_name": "Nightshade"
+  },
+  "identity": {
+    "item_hash": "0x7613D499",
+    "collectible_hash": "0x1CA5D696",
+    "unlock_hash": "0xF56C0600",
+    "pattern_global_id_hash": "0x5D3B4D90",
+    "name_hash": "0xA0834023",
+    "type_hash": "0xACABCFC4",
+    "flavor_hash": "0x5E1EA0D8",
+    "source_hash": "0xC5832D5B",
+    "collection_name_hash": "0xD4F49CAE",
+    "collection_description_hash": "0xBC282B23",
+    "inventory_hint_hash": "0x4E8CC700",
+    "collection_requirement_hash": "0x67B13F68"
+  },
+  "name": "Nightshade Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

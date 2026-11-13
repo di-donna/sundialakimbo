@@ -161,6 +161,7 @@ pub(super) fn draw_install_report(ui: &mut egui::Ui, report: &InstallReport) {
                 "Collections updated: {} {noun} available.",
                 sync.total_unlocks
             ));
+            ui.label("Get copies from their category pages in the game's Collections screen. Weapons appear under Weapons or Exotics. Badge entries allow inspection only.");
         }
         Some(Err(error)) => {
             ui.colored_label(

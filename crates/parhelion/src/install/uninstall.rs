@@ -75,6 +75,9 @@ pub(super) fn preview_legacy(packages: &Path) -> Result<UninstallPlan, InstallEr
         )
         .map_err(InstallError::validation)?;
     }
+    if let Some(binding) = akimbo::installed(&target)? {
+        artifacts.push(binding);
+    }
     let stock = discover_target_source_artifact_names(&target)?
         .iter()
         .map(|name| snapshot(&target, name))

@@ -2,6 +2,7 @@ use super::*;
 use crate::tag_payload::read_u8;
 
 mod collection_templates;
+mod reclaim_routes;
 
 #[test]
 fn rarity_branches_increment_only_their_own_collection_ancestors() {

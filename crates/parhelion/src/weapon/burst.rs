@@ -70,6 +70,8 @@ pub(crate) struct Column {
     pub(crate) stat: Option<u32>,
     /// The stat values the first and last tiers stand for.
     range: [i32; 2],
+    interpolate: bool,
+    offset: i32,
 }
 
 impl Column {
@@ -93,6 +95,31 @@ impl Column {
             0
         };
         self.tiers.get(tier.min(last)).copied().unwrap_or(1)
+    }
+
+    /// Runtime-compatible sampling for admission checks. Unlike the UI's nearest-tier
+    /// reading, a fractional interpolated bullet count is not rounded into a supported shot.
+    pub(crate) fn selected(&self, value: i32) -> Option<u16> {
+        if let Some(value) = self.fixed() {
+            return Some(value);
+        }
+        if self.offset != 0 {
+            return None;
+        }
+        let [low, high] = self.range;
+        let last = self.tiers.len().checked_sub(1)?;
+        if high <= low {
+            return None;
+        }
+        let value = value.clamp(low, high);
+        let position = (value - low) as f32 * last as f32 / (high - low) as f32;
+        let lower = (position as usize).min(last);
+        let mut sampled = f32::from(self.tiers[lower]);
+        if self.interpolate {
+            let next = f32::from(self.tiers[(lower + 1).min(last)]);
+            sampled += (next - sampled) * (position - position.floor());
+        }
+        (sampled.is_finite() && sampled.fract() == 0.0).then_some(sampled as u16)
     }
 }
 
@@ -165,23 +192,72 @@ pub(crate) fn patches(
 /// The bullets, the cells and the output number of the column every Barrel bullet input copies,
 /// in the table for `group`, or the first table when the translator has none for it, as the
 /// client falls back.
-fn column(owner: &[u8], group: u32) -> AuthoringResult<Option<(Column, Vec<usize>, u32)>> {
+pub(crate) fn column(
+    owner: &[u8],
+    group: u32,
+) -> AuthoringResult<Option<(Column, Vec<usize>, u32)>> {
+    column_inner(owner, group, false)
+}
+
+/// Admission-only form includes the native zero convention and proves the complete direct
+/// operand. The editor keeps its existing nonzero setting semantics through `column`.
+pub(crate) fn firing_column(owner: &[u8], group: u32) -> AuthoringResult<Option<Column>> {
+    Ok(column_inner(owner, group, true)?.map(|(column, _, _)| column))
+}
+
+fn pins_preserve_input(owner: &[u8], key: usize, input: u32) -> AuthoringResult<bool> {
+    if crate::tag_payload::read_u64(owner, key)? == 0 {
+        return Ok(true);
+    }
+    let (count, _, rows, class) = array_at(owner, key)?;
+    if class != 0x808038C9
+        || count > 128
+        || rows
+            .checked_add(count * 8)
+            .is_none_or(|end| end > owner.len())
+    {
+        return Ok(false);
+    }
+    let mut seen = std::collections::BTreeSet::new();
+    for at in (0..count).map(|index| rows + index * 8) {
+        // Native pins address a signed WeaponStats input byte and store one float32 value.
+        // Another input's constant cannot replace the selected translation's authored stat.
+        let pin = owner[at];
+        if pin > i8::MAX as u8
+            || owner[at + 1..at + 4] != [0; 3]
+            || !seen.insert(pin)
+            || u32::from(pin) == input
+            || !f32::from_bits(read_u32(owner, at + 4)?).is_finite()
+        {
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+fn column_inner(
+    owner: &[u8],
+    group: u32,
+    firing: bool,
+) -> AuthoringResult<Option<(Column, Vec<usize>, u32)>> {
     let keys = translator_array(owner, TRANSLATOR_KEY_CLASS)?;
     let tables = translator_array(owner, TRANSLATOR_TABLE_CLASS)?;
-    if keys.0 != tables.0 {
+    if keys.0 == 0 || keys.0 != tables.0 {
         return Ok(None);
     }
-    let mut index = 0;
+    let mut selected = None;
     for key in 0..keys.0 {
         if read_u32(
             owner,
             keys.1 + key * TRANSLATOR_KEY_SIZE + TRANSLATOR_KEY_HASH,
         )? == group
         {
-            index = key;
-            break;
+            if selected.replace(key).is_some() {
+                return Ok(None);
+            }
         }
     }
+    let index = selected.unwrap_or(0);
     let table = tables.1 + index * TRANSLATOR_TABLE_SIZE;
     let (translations, _, translation_rows, translation_class) = array_at(owner, table)?;
     let (routes, _, route_rows, route_class) = array_at(owner, table + 0x10)?;
@@ -205,7 +281,12 @@ fn column(owner: &[u8], group: u32) -> AuthoringResult<Option<(Column, Vec<usize
             return Ok(None);
         };
         let own = read_u32(owner, route + ROUTE_SOURCE)?;
-        if read_u32(owner, route + ROUTE_OPERATION)? != DIRECT || source.is_some_and(|s| s != own) {
+        if read_u32(owner, route + ROUTE_OPERATION)? != DIRECT
+            || source.is_some_and(|s| s != own)
+            || (firing
+                && (read_u32(owner, route + 0x10)? != 0
+                    || read_u32(owner, route + 0x20)? != f32::MAX.to_bits()))
+        {
             return Ok(None);
         }
         source = Some(own);
@@ -236,7 +317,9 @@ fn column(owner: &[u8], group: u32) -> AuthoringResult<Option<(Column, Vec<usize
         let cell = outputs + column * 4;
         let value = f32::from_bits(read_u32(owner, cell)?);
         if value.fract() != 0.0
-            || !(1.0..=f32::from(crate::weapon::barrel::MAX_BULLETS_PER_SHOT)).contains(&value)
+            || !(if firing { 0.0 } else { 1.0 }
+                ..=f32::from(crate::weapon::barrel::MAX_BULLETS_PER_SHOT))
+                .contains(&value)
         {
             return Ok(None);
         }
@@ -254,6 +337,8 @@ fn column(owner: &[u8], group: u32) -> AuthoringResult<Option<(Column, Vec<usize
         tiers: bullets,
         stat: None,
         range: [low, high],
+        interpolate: owner.get(translation + 0x30).copied() == Some(1),
+        offset: read_u32(owner, translation + 0x24)? as i32,
     };
     if column.fixed().is_none() {
         // Only a stat the weapon's own stats name can pick the tier the editor shows.
@@ -261,6 +346,201 @@ fn column(owner: &[u8], group: u32) -> AuthoringResult<Option<(Column, Vec<usize
             return Ok(None);
         }
         column.stat = Some(ROUNDS_PER_MINUTE_HASH);
+        if firing {
+            if owner.get(translation + 0x30).is_none_or(|value| *value > 1) {
+                return Ok(None);
+            }
+            let key = keys.1 + index * TRANSLATOR_KEY_SIZE;
+            if !pins_preserve_input(owner, key, read_u32(owner, translation + TRANSLATION_STAT)?)? {
+                // A pin of this exact input needs its own sampling path. Do not silently
+                // use the final item stat when the native translator substitutes a constant.
+                return Ok(None);
+            }
+        }
     }
     Ok(Some((column, cells, source)))
+}
+
+#[cfg(test)]
+mod akimbo_tests {
+    use super::*;
+    use crate::tag_payload::{append_native_array, write_u32};
+
+    fn translator(groups: &[u32]) -> Vec<u8> {
+        let mut owner = vec![0; 32];
+        let mut keys = vec![0; groups.len() * TRANSLATOR_KEY_SIZE];
+        for (index, group) in groups.iter().enumerate() {
+            write_u32(
+                &mut keys,
+                index * TRANSLATOR_KEY_SIZE + TRANSLATOR_KEY_HASH,
+                *group,
+            )
+            .unwrap();
+        }
+        append_native_array(&mut owner, 0, TRANSLATOR_KEY_CLASS, groups.len(), &keys).unwrap();
+        append_native_array(
+            &mut owner,
+            16,
+            TRANSLATOR_TABLE_CLASS,
+            groups.len(),
+            &vec![0; groups.len() * TRANSLATOR_TABLE_SIZE],
+        )
+        .unwrap();
+        if groups.is_empty() {
+            return owner;
+        }
+        let (_, _, tables, _) = array_at(&owner, 16).unwrap();
+        for index in 0..groups.len() {
+            let table = tables + index * TRANSLATOR_TABLE_SIZE;
+            append_native_array(
+                &mut owner,
+                table,
+                TRANSLATION_CLASS,
+                1,
+                &[0; TRANSLATION_SIZE],
+            )
+            .unwrap();
+            let (_, _, translation, _) = array_at(&owner, table).unwrap();
+            write_u32(
+                &mut owner,
+                translation + TRANSLATION_RANGE + 4,
+                100f32.to_bits(),
+            )
+            .unwrap();
+            append_native_array(
+                &mut owner,
+                translation + TRANSLATION_ROWS,
+                ROW_CLASS,
+                1,
+                &[0; ROW_SIZE],
+            )
+            .unwrap();
+            let (_, _, tier, _) = array_at(&owner, translation + TRANSLATION_ROWS).unwrap();
+            append_native_array(
+                &mut owner,
+                tier,
+                OUTPUTS_CLASS,
+                1,
+                &(2.0 + index as f32).to_le_bytes(),
+            )
+            .unwrap();
+            let mut routes = vec![0; BARREL_BULLETS_PER_SHOT.len() * ROUTE_SIZE];
+            for (lane, input) in BARREL_BULLETS_PER_SHOT.into_iter().enumerate() {
+                let at = lane * ROUTE_SIZE;
+                for (field, value) in [
+                    (ROUTE_COMPONENT, BARREL_COMPONENT as u32),
+                    (ROUTE_INPUT, input as u32),
+                    (ROUTE_OPERATION, DIRECT),
+                    (ROUTE_SOURCE, OUTPUTS),
+                    (0x20, f32::MAX.to_bits()),
+                ] {
+                    write_u32(&mut routes, at + field, value).unwrap();
+                }
+            }
+            append_native_array(
+                &mut owner,
+                table + 16,
+                ROUTE_CLASS,
+                BARREL_BULLETS_PER_SHOT.len(),
+                &routes,
+            )
+            .unwrap();
+        }
+        owner
+    }
+
+    #[test]
+    fn akimbo_firing_columns_require_nonempty_unambiguous_groups_and_preserve_native_fallback() {
+        assert!(firing_column(&translator(&[]), 2).is_err());
+        let valid = translator(&[1, 2]);
+        assert_eq!(firing_column(&valid, 2).unwrap().unwrap().fixed(), Some(3));
+        assert_eq!(firing_column(&valid, 99).unwrap().unwrap().fixed(), Some(2));
+        assert!(firing_column(&translator(&[2, 2]), 2).unwrap().is_none());
+        let mut mismatched = translator(&[1, 2]);
+        let (_, header, _, _) = array_at(&mismatched, 16).unwrap();
+        crate::tag_payload::set_array_count(&mut mismatched, 16, header, 1).unwrap();
+        assert!(firing_column(&mismatched, 2).unwrap().is_none());
+    }
+
+    #[test]
+    fn akimbo_variable_firing_column_accepts_only_typed_irrelevant_input_pins() {
+        let mut base = translator(&[1]);
+        let (_, tables) = translator_array(&base, TRANSLATOR_TABLE_CLASS).unwrap();
+        let (_, _, translation, _) = array_at(&base, tables).unwrap();
+        append_native_array(
+            &mut base,
+            translation + TRANSLATION_ROWS,
+            ROW_CLASS,
+            2,
+            &[0; 32],
+        )
+        .unwrap();
+        let (_, _, tiers, _) = array_at(&base, translation + TRANSLATION_ROWS).unwrap();
+        for (index, value) in [2f32, 3.0].into_iter().enumerate() {
+            append_native_array(
+                &mut base,
+                tiers + index * 16,
+                OUTPUTS_CLASS,
+                1,
+                &value.to_le_bytes(),
+            )
+            .unwrap();
+        }
+        assert!(firing_column(&base, 1).unwrap().is_some());
+        let (_, key) = translator_array(&base, TRANSLATOR_KEY_CLASS).unwrap();
+        let with_pins = |class, pins: &[[u32; 2]]| {
+            let mut owner = base.clone();
+            let bytes = pins
+                .iter()
+                .flatten()
+                .flat_map(|value| value.to_le_bytes())
+                .collect::<Vec<_>>();
+            append_native_array(&mut owner, key, class, pins.len(), &bytes).unwrap();
+            owner
+        };
+        let unrelated = with_pins(0x808038C9, &[[16, 50f32.to_bits()]]);
+        assert_eq!(
+            firing_column(&unrelated, 1).unwrap().unwrap().selected(100),
+            Some(3)
+        );
+        for pins in [
+            vec![[0, 50f32.to_bits()]],
+            vec![[16, 50f32.to_bits()], [16, 1f32.to_bits()]],
+            vec![[16, f32::NAN.to_bits()]],
+            vec![[0x110, 50f32.to_bits()]],
+            vec![[255, 50f32.to_bits()]],
+        ] {
+            assert!(
+                firing_column(&with_pins(0x808038C9, &pins), 1)
+                    .unwrap()
+                    .is_none()
+            );
+        }
+        assert!(
+            firing_column(&with_pins(ROW_CLASS, &[[16, 50f32.to_bits()]]), 1)
+                .unwrap()
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn akimbo_admission_samples_runtime_tiers_without_nearest_rounding() {
+        let mut column = Column {
+            tiers: vec![1, 1, 1, 2, 1, 3, 1, 1, 1, 1, 1],
+            stat: Some(ROUNDS_PER_MINUTE_HASH),
+            range: [0, 100],
+            interpolate: true,
+            offset: 0,
+        };
+        assert_eq!(column.selected(40), Some(1));
+        assert_eq!(column.selected(50), Some(3));
+        assert_eq!(column.selected(25), None);
+        assert_eq!(column.selected(45), Some(2));
+        assert_eq!(column.selected(-1), Some(1));
+        assert_eq!(column.selected(101), Some(1));
+        column.interpolate = false;
+        assert_eq!(column.selected(29), Some(1));
+        column.offset = 1;
+        assert_eq!(column.selected(40), None);
+    }
 }

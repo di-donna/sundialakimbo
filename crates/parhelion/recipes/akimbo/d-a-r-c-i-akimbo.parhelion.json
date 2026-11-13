@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "namespace": "parhelion.d-a-r-c-i-akimbo",
+  "collection_placement": "sunrise_badge",
+  "donor": {
+    "item_hash": "0xBB46CCD2",
+    "expected_name": "D.A.R.C.I."
+  },
+  "identity": {
+    "item_hash": "0xDBC1BA55",
+    "collectible_hash": "0x082B557A",
+    "unlock_hash": "0xE0225854",
+    "pattern_global_id_hash": "0xDCB7F54C",
+    "name_hash": "0x5086DB3F",
+    "type_hash": "0xA102CF18",
+    "flavor_hash": "0x76CFF0FC",
+    "source_hash": "0xD9BF51E7",
+    "collection_name_hash": "0xA4E85C46",
+    "collection_description_hash": "0xF329969F",
+    "inventory_hint_hash": "0xF50F3320",
+    "collection_requirement_hash": "0xC93C71B4"
+  },
+  "name": "D.A.R.C.I. Akimbo",
+  "flavor": "A weapon authored with Parhelion.",
+  "source": "Source: Guardians Make Their Own Fate",
+  "overrides": {
+    "akimbo": {
+      "schema": 1,
+      "mode": "independent",
+      "reload": "lower_magazine"
+    },
+    "investment_stats": [],
+    "inventory_slot": null,
+    "ammo_type": null,
+    "modern_damage_type": null,
+    "power_cap_group": null,
+    "rarity": null,
+    "stat_group_index": null,
+    "socket_columns": [],
+    "raw_payload_patches": []
+  }
+}

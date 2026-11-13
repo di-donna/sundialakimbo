@@ -47,6 +47,7 @@ pub struct BatchBuildRequest {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BatchBuildSnapshot {
     pub request: BatchBuildRequest,
+    akimbo_capability: Option<crate::weapon::akimbo::deployment::InstalledCapability>,
 }
 
 impl BatchBuildSnapshot {
@@ -76,7 +77,44 @@ impl BatchBuildSnapshot {
                 )
             })?;
         }
-        Ok(Self { request })
+        let akimbo_capability = request
+            .recipes
+            .iter()
+            .any(|recipe| recipe.overrides.akimbo.is_some())
+            .then(|| {
+                crate::weapon::akimbo::deployment::InstalledCapability::read(
+                    &request.package_directory,
+                )
+            })
+            .transpose()
+            .map_err(|error| format!("Akimbo requires a compatible native runtime: {error}"))?;
+        Ok(Self {
+            request,
+            akimbo_capability,
+        })
+    }
+
+    fn verify_akimbo_runtime(&self) -> Result<(), String> {
+        if !self
+            .request
+            .recipes
+            .iter()
+            .any(|recipe| recipe.overrides.akimbo.is_some())
+            && self.akimbo_capability.is_none()
+        {
+            return Ok(());
+        }
+        let expected = self
+            .akimbo_capability
+            .as_ref()
+            .ok_or("The recipe selection gained akimbo intent; create a new build snapshot")?;
+        let current = crate::weapon::akimbo::deployment::InstalledCapability::read(
+            &self.request.package_directory,
+        )?;
+        if &current != expected {
+            return Err("The native akimbo capability, runtime or executable changed during the build; review and build again".into());
+        }
+        Ok(())
     }
 
     /// The fingerprint a build of this selection records, which encodes every recipe.
@@ -368,6 +406,7 @@ fn plan_snapshot_naming(
     progress: &mut impl FnMut(BuildProgress),
     failed: &mut Option<String>,
 ) -> Result<PlannedSnapshot, String> {
+    snapshot.verify_akimbo_runtime()?;
     // Every authored id the build places reads this window and host, so they are chosen before
     // planning. Sunrise's mod loader refuses a patch that adds entries, so there the build's
     // investment records take the window's first id and the asset packages follow it.
@@ -533,6 +572,22 @@ fn plan_snapshot_naming(
         validate_source_artifacts_unchanged(&source_artifacts, &source_artifacts_after)?;
         crate::mod_family::build::verify_inputs()?;
         let bundle = compilation?;
+        snapshot.verify_akimbo_runtime()?;
+        let paired_recipes = snapshot
+            .request
+            .recipes
+            .iter()
+            .filter(|recipe| recipe.overrides.akimbo.is_some())
+            .count();
+        if bundle.plan.akimbo_profiles.len() != paired_recipes {
+            return Err(
+                "The compiler did not emit exactly one native profile for each akimbo recipe"
+                    .into(),
+            );
+        }
+        if let Some(capability) = &snapshot.akimbo_capability {
+            capability.require_profiles(&bundle.plan.akimbo_profiles)?;
+        }
         crate::mod_family::build::finish_sources(source.path())?;
         // Sunrise merges table rows only for mods in its mod folder.
         let merge_data = host.is_standalone().then(|| {
@@ -665,6 +720,7 @@ pub fn build_and_stage_snapshot_reporting(
     let bundle = planned.bundle;
     let subclass_classes = planned.subclass_classes;
     let merge_data = planned.merge_data;
+    snapshot.verify_akimbo_runtime()?;
     fs::create_dir_all(&snapshot.request.staging_root).map_err(|error| {
         format!(
             "Could not create staging root {}: {error}",
@@ -691,6 +747,28 @@ pub fn build_and_stage_snapshot_reporting(
             .map_err(|error| format!("Could not write staged packages: {error}"))?;
         let artifacts = artifact_reports_with_progress(&paths, &mut progress)?;
         validate_outputs(&artifacts)?;
+        let paired_recipes = snapshot
+            .request
+            .recipes
+            .iter()
+            .filter(|recipe| recipe.overrides.akimbo.is_some())
+            .count();
+        if bundle.plan.akimbo_profiles.len() != paired_recipes {
+            return Err(
+                "The compiler did not emit exactly one native profile for each akimbo recipe"
+                    .into(),
+            );
+        }
+        let akimbo_bindings = crate::weapon::akimbo::deployment::stage(
+            &snapshot.request.package_directory,
+            &run_directory,
+            &source_artifacts,
+            &artifacts,
+            &bundle.plan.akimbo_profiles,
+            &bundle.plan.akimbo_source_tags,
+            snapshot.akimbo_capability.as_ref(),
+        )?;
+        snapshot.verify_akimbo_runtime()?;
         let merge_paths = match &merge_data {
             Some(data) => crate::merge_data::stage(&run_directory, data)?,
             None => Vec::new(),
@@ -727,6 +805,7 @@ pub fn build_and_stage_snapshot_reporting(
             1,
         ));
         let mut manifest = ManifestDocument {
+            akimbo_bindings,
             mods: Vec::new(),
             schema: MANIFEST_SCHEMA,
             source_package_directory: source_package_directory.display().to_string(),
