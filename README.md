@@ -13,6 +13,10 @@ Sundial edits accounts and settings for [Project Sunrise](https://github.com/sta
 - Use the JSON editor for settings not covered by the guided interface.
 - Author custom weapons and other items with [Parhelion](crates/parhelion/README.md).
 
+## Akimbo development companion
+
+The native [Dawn companion patch and application instructions](companion/dawn/README.md) are included for the pinned Dawn v1.7.2 base. See [checkpoint status](crates/parhelion/AKIMBO-STATUS.md) for validation and remaining gameplay acceptance.
+
 ## Compatibility
 
 - Destiny 2 Shadowkeep build `86657.20.08.23`

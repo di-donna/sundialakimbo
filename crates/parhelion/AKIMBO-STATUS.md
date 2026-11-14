@@ -26,6 +26,8 @@ remain unsupported. Test-only charge code is a prototype, not a production adapt
 
 ## Companion runtime
 
+The [Dawn companion patch and application instructions](../../companion/dawn/README.md) are included in this repository.
+
 Sundial requires a separately built Dawn companion exposing schema 5 and the
 required adapters. It does not install the companion DLL. The validated native
 patch is based on Dawn v1.7.2 commit

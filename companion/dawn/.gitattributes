@@ -1,0 +1,2 @@
+# Preserve the verified patch bytes, including diff context whitespace.
+*.patch -text -whitespace
